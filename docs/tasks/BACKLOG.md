@@ -52,12 +52,15 @@ All completion flags start as **not done**. No agent is currently running from t
 
 Before these prompts execute, the coordinator must communicate the actual GitHub URL/SHA and whether G0 is accepted. They cannot be assumed from this scaffold.
 
-## G0 public-repository bootstrap status (2026-11-04; verify HEAD and CI)
+## G0 public-repository bootstrap status (2026-11-04; PR pending approval)
 
-- `OTS-000`: **PARTIAL** - Public GitHub repository confirmed as `RaulZion/OpenTheme-Studio`. Confirm published `main` SHA and successful frozen pnpm install before releasing coding branches.
-- `OTS-001`: **SOURCE CANDIDATE READY** - ADR-0001/0002/0003 accepted, fixture and schema tested, normative adapter types added. Remote HEAD and CI verification are the authoritative checks.
-- `OTS-002`: **PARTIAL** - interview guide and 12-15 participant allocation documented; participants not recruited and no interviews performed.
-- `OTS-101/102/111/112/113/121/122`: **NOT STARTED** - ownership and prompts prepared, no working branches or handoffs.
-- `OTS-131`: **NOT STARTED** - combined integration requires all independent branch outputs and native install evidence.
+- **Published source baseline:** `main` commit `6853aef636d2d7806d9b4a61256a3672d0a9fdbe`; tree `20e54637c31ad3967e9069ba940747bad6c6b561`, 42 starter files.
+- **Initial CI:** GitHub Actions run `41879459057` passed Node smoke tests, JSON Schema tests and a generated-then-frozen pnpm install; it produced artifact `pnpm-lockfile-candidate` (ID `13347333923`).
+- **Reproducibility change:** proposed on isolated branch `chore/g0-reproducibility`, including the artifact-derived `pnpm-lock.yaml` and CI rewritten to use only the committed lockfile. Acceptance requires passing PR checks, review, and an authorized merge.
+- **OTS-000 — PARTIAL:** Public repository and source commit verified; `main` currently unprotected. Enabling a suitable ruleset may require an owner action.
+- **OTS-001 — SOURCE CONTRACT ACCEPTED:** ADR-0001/0002/0003 accepted and versioned; G0 lockfile/CI acceptance still pending.
+- **OTS-002 — DOCUMENTED, NOT VALIDATED:** interview plan and screener created; no participants recruited and no interviews conducted.
+- **OTS-101/102/111/112/113/121/122 — NOT STARTED:** do not release implementation tasks until G0 reproducibility PR merges and the final `main` SHA is recorded.
+- **OTS-131 — NOT STARTED:** integration and native app installation evidence belong to later gates.
 
-Before agent dispatch, record published `main` SHA and a generated, committed lockfile with clean `pnpm install --frozen-lockfile` evidence. Root dependency changes belong to the controller only.
+No agent may modify another agent's owned directory. Root/shared configuration and contract changes remain coordinator-owned. See `docs/gates/G0_REPRODUCIBILITY_CHECKPOINT.md` for exact evidence and outstanding items.
