@@ -1,0 +1,121 @@
+import { test, expect } from '@playwright/test';
+import { readFile, mkdir } from 'node:fs/promises';
+import sample from '../../../contracts/sample.theme.json' with { type: 'json' };
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await mkdir('output/playwright', { recursive: true });
+});
+
+test('desktop visual selection, shared colors, isolated overrides, keyboard history, exact download/import', async ({ page, browser }, info) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.screenshot({ path: 'output/playwright/desktop-vscode.png', fullPage: true });
+  await page.getByRole('button', { name: 'Edit Sidebar background' }).click();
+  await expect(page.getByRole('heading', { name: 'Sidebar background' })).toBeVisible();
+  await expect(page.getByLabel('Hex color')).toBeFocused();
+  await page.getByLabel('Hex color').fill('#304050');
+  await page.getByLabel('Hex color').press('Tab');
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#304050');
+  await page.getByRole('button', { name: /Obsidian.*Notes/ }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#304050');
+  const background = page.getByRole('button', { name: 'Edit Editor background' });
+  await background.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByLabel('Hex color')).toBeFocused();
+  await page.getByRole('radio', { name: 'Only Obsidian' }).click();
+  await page.getByLabel('Hex color').fill('#223344');
+  await page.getByLabel('Hex color').press('Tab');
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-canvas', '#223344');
+  await page.keyboard.press('Control+z');
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-canvas', sample.tokens.canvas);
+  await page.keyboard.press('Control+Shift+z');
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-canvas', '#223344');
+  await page.getByRole('button', { name: /VS Code.*Code editor/ }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-canvas', sample.tokens.canvas);
+  await page.getByRole('button', { name: /Obsidian.*Notes/ }).click();
+  await page.screenshot({ path: 'output/playwright/desktop-obsidian.png', fullPage: true });
+  const state = await page.evaluate(() => JSON.parse(localStorage.getItem('opentheme.project.v1')!));
+  expect(state.tokens.surface).toBe('#304050');
+  expect(state.tokens.canvas).toBe(sample.tokens.canvas);
+  expect(state.appOverrides.obsidian['--background-primary']).toBe('#223344');
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save project' }).click();
+  const download = await downloadEvent;
+  expect(download.suggestedFilename()).toBe('midnight-sea.theme.json');
+  const downloaded = await readFile((await download.path())!, 'utf8');
+  expect(JSON.parse(downloaded)).toEqual(state);
+  await page.getByRole('button', { name: 'Apply Paper Garden palette' }).click();
+  await page.getByLabel('Import project JSON').setInputFiles({ name: 'saved.theme.json', mimeType: 'application/json', buffer: Buffer.from(downloaded) });
+  await expect(page.getByRole('status')).toContainText('Project imported');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('opentheme.project.v1')!))).toEqual(state);
+  await page.getByRole('button', { name: 'Compare original' }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', sample.tokens.surface);
+  await expect(background).toBeDisabled();
+  await page.getByRole('button', { name: 'Back to your edits' }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#304050');
+  await page.getByLabel('Import project JSON').setInputFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{}') });
+  await expect(page.getByRole('alert')).toContainText('Your current project is unchanged');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('opentheme.project.v1')!))).toEqual(state);
+  await page.reload();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('opentheme.project.v1')!))).toEqual(state);
+  expect(errors).toEqual([]);
+  await info.attach('browser-version', { body: `Chromium ${browser.version()} · 1440×1000 · Windows`, contentType: 'text/plain' });
+});
+
+test('export disclosure, dialog focus loop and light studio appearance', async ({ page }) => {
+  await page.getByRole('button', { name: 'Use light studio appearance' }).click();
+  await expect(page.getByTestId('studio')).toHaveAttribute('data-appearance', 'light');
+  await page.screenshot({ path: 'output/playwright/desktop-light.png', fullPage: true });
+  const trigger = page.getByRole('button', { name: 'Export theme' });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: 'Export your theme' });
+  await expect(dialog.getByText('Native export is not available', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Native export unavailable' })).toBeDisabled();
+  const close = dialog.getByRole('button', { name: 'Close dialog' });
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(dialog.getByRole('button', { name: 'Download project JSON' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  await page.screenshot({ path: 'output/playwright/export-disclosure.png', fullPage: true });
+  await page.keyboard.press('Escape');
+  await expect(trigger).toBeFocused();
+  await expect(dialog).toHaveCount(0);
+});
+
+test('narrow viewport panels, keyboard selection and app override reset', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('navigation', { name: 'Applications and palette' })).toBeHidden();
+  await page.getByRole('button', { name: 'Applications & palette' }).click();
+  await page.getByRole('button', { name: /Obsidian.*Notes/ }).click();
+  await expect(page.getByRole('navigation', { name: 'Applications and palette' })).toBeHidden();
+  await page.screenshot({ path: 'output/playwright/narrow-obsidian.png', fullPage: true });
+  const sidebar = page.getByRole('button', { name: 'Edit Sidebar background' });
+  await sidebar.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByLabel('Hex color')).toBeVisible();
+  await expect(page.getByLabel('Hex color')).toBeFocused();
+  await page.getByRole('radio', { name: 'Only Obsidian' }).click();
+  await page.getByLabel('Hex color').fill('#283A4F');
+  await page.getByLabel('Hex color').press('Tab');
+  await page.getByRole('button', { name: 'Reset selected override' }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', sample.tokens.surface);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#283A4F');
+  await page.screenshot({ path: 'output/playwright/narrow-inspector.png', fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('cached shell continues editing after network is offline', async ({ page, context }) => {
+  // Offline-after-load only: no service worker or offline-reload guarantee.
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Edit Sidebar background' }).click();
+  await page.getByLabel('Hex color').fill('#123456');
+  await page.getByLabel('Hex color').press('Tab');
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#123456');
+  await page.getByRole('button', { name: /Obsidian.*Notes/ }).click();
+  await expect(page.getByTestId('preview')).toHaveCSS('--theme-surface', '#123456');
+});
