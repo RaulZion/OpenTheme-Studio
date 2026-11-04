@@ -33,6 +33,9 @@ export async function createNativeArchive(project: ThemeProject, app: EditorApp)
     throw new Error('Invalid project ID for a theme archive.');
   }
   const folder = app === 'vscode' ? project.projectId + '-0.0.1' : project.projectId;
+  // fflate v0.8.2 checks instanceof its own Uint8Array constructor; normalize
+  // TextEncoder output across JS realms (notably Vitest/jsdom) before ZIP flattening.
+  const ZipBytes = zipSync({}).constructor as Uint8ArrayConstructor;
   const members: Record<string, Uint8Array> = {};
   const seen = new Set<string>();
   for (const file of result.files as ExportFile[]) {
@@ -41,7 +44,7 @@ export async function createNativeArchive(project: ThemeProject, app: EditorApp)
     }
     seen.add(file.path);
     members[folder + '/' + file.path] =
-      typeof file.content === 'string' ? strToU8(file.content) : strToU8(new TextDecoder().decode(file.content));
+      new ZipBytes(typeof file.content === 'string' ? strToU8(file.content) : file.content);
   }
 
   const bytes = zipSync(members, { level: 0, mtime: new Date('1980-01-01T00:00:00Z') });
