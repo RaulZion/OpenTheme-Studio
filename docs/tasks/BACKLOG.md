@@ -52,12 +52,12 @@ All completion flags start as **not done**. No agent is currently running from t
 
 Before these prompts execute, the coordinator must communicate the actual GitHub URL/SHA and whether G0 is accepted. They cannot be assumed from this scaffold.
 
-## G0 local candidate status (2026-11-04; not yet published)
+## G0 public-repository bootstrap status (2026-11-04; verify HEAD and CI)
 
-- `OTS-000`: **BLOCKED** - GitHub repository must be created and the exact candidate commit published before handing coding branches to other agents.
-- `OTS-001`: **LOCAL CANDIDATE READY** - ADR-0001/0002/0003 accepted locally, fixture and schema tested, normative adapter types added. Remote SHA not verified.
+- `OTS-000`: **PARTIAL** - Public GitHub repository confirmed as `RaulZion/OpenTheme-Studio`. Confirm published `main` SHA and successful frozen pnpm install before releasing coding branches.
+- `OTS-001`: **SOURCE CANDIDATE READY** - ADR-0001/0002/0003 accepted, fixture and schema tested, normative adapter types added. Remote HEAD and CI verification are the authoritative checks.
 - `OTS-002`: **PARTIAL** - interview guide and 12-15 participant allocation documented; participants not recruited and no interviews performed.
 - `OTS-101/102/111/112/113/121/122`: **NOT STARTED** - ownership and prompts prepared, no working branches or handoffs.
 - `OTS-131`: **NOT STARTED** - combined integration requires all independent branch outputs and native install evidence.
 
-Before agent dispatch, update this status with the real remote URL, the published `main` commit, and successful dependency lock/install verification. Root dependency changes belong to the controller only.
+Before agent dispatch, record published `main` SHA and a generated, committed lockfile with clean `pnpm install --frozen-lockfile` evidence. Root dependency changes belong to the controller only.

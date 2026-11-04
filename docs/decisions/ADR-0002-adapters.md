@@ -1,7 +1,7 @@
 # ADR-0002 — adapter capabilities and versioned contract
 
 - Date: 2026-11-04
-- Status: accepted for G0 candidate on 2026-11-04; GitHub publication pending
+- Status: accepted on 2026-11-04 (G0 source baseline)
 
 ## Principle
 

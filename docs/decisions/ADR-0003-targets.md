@@ -1,7 +1,7 @@
 # ADR-0003 - documented target versions and verification policy
 
 - Date: 2026-11-04
-- Status: accepted for G0 candidate; GitHub publication pending
+- Status: accepted on 2026-11-04 (G0 source baseline)
 
 ## Decision
 

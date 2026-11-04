@@ -4,7 +4,7 @@ Applies to ChatGPT, Codex, Claude, Gemini and community contributors. Read the c
 
 ## 1. Source of truth
 
-- GitHub: authoritative for source code, branches, tests, contracts, versioned specifications and PR history, **after** a remote has been created by the coordinator.
+- GitHub: authoritative for source code, branches, tests, contracts, versioned specifications and PR history, now that the public repository exists; verify the actual `main` HEAD before editing.
 - Google Drive `OpenTheme Studio/Project Diary`: authoritative for operational checkpoints, decisions, coordination and agent handoffs. The local `docs/diary` entry is a seed/snapshot, not a substitute for the Drive diary after setup.
 - The initial zip is a **bootstrap artifact** until committed to the designated repository; do not claim it is already pushed.
 - Never claim tools, tests, browser actions, install checks or user interviews were run without evidence.

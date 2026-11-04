@@ -1,4 +1,4 @@
-# Contract v1 (frozen proposal for G0)
+# Contract v1 (accepted canonical format at G0; native app validation pending)
 
 The file `theme.schema.json` is the machine-readable project document contract. The file `sample.theme.json` is a valid starter fixture. The coordinator owns all changes to this directory.
 

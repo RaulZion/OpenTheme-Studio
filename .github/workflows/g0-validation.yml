@@ -1,0 +1,38 @@
+name: G0 baseline checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-lock-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify Node contract smoke tests
+        run: npm test
+      - name: Verify JSON Schema fixtures
+        run: |
+          python -m pip install -r contracts/tests/requirements.txt
+          python -m unittest discover -s contracts/tests -p 'test_*.py' -v
+      - name: Generate pnpm lockfile candidate and validate frozen install
+        run: |
+          corepack enable
+          corepack pnpm --version
+          corepack pnpm install --lockfile-only
+          corepack pnpm install --frozen-lockfile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-lockfile-candidate
+          path: pnpm-lock.yaml
+          if-no-files-found: error

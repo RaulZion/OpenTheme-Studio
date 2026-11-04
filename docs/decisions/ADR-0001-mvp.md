@@ -1,7 +1,7 @@
 # ADR-0001 — local-first browser MVP and release scope
 
 - Date: 2026-11-04
-- Status: accepted for G0 candidate on 2026-11-04; GitHub publication pending
+- Status: accepted on 2026-11-04 (G0 source baseline)
 
 ## Decision
 

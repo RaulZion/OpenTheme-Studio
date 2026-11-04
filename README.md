@@ -2,7 +2,7 @@
 
 Open-source, local-first visual theme studio for multiple applications with **officially supported theme APIs and file formats**. The project's value proposition is not simply converting palettes; it is a usable click-to-edit preview, one semantic palette, application-specific refinement, and safe native exports.
 
-**Status as of 2026-11-04: G0 offline candidate.** This is still **not a runnable application**. Contract tests and root JS workspace config are now present; native pnpm dependency install and the GitHub remote are not verified. Codex, Claude and Gemini have not implemented their packages.
+**Status as of 2026-11-04: G0 source baseline being published to the project GitHub repository.** This is still **not a runnable application**. Contract tests and root JS workspace config are present. The pnpm lockfile and frozen dependency installation require an independent check before G0 is fully released. Codex, Claude and Gemini have not implemented their packages.
 
 ## Start here
 
@@ -32,18 +32,18 @@ Open-source, local-first visual theme studio for multiple applications with **of
 
 ## Source-of-truth convention
 
-Adopt the established split **once the project is initialized**: GitHub for source, versioned architecture/contracts/tests, issues and PRs; Google Drive Project Diary for coordination, checkpoints and handoffs. A Google Drive folder has been created under `OpenTheme Studio`, but no code should be duplicated there. No GitHub remote URL is defined yet; a coordinator must explicitly create/identify it before branch-based implementation.
+GitHub is authoritative for source, versioned architecture/contracts/tests, issues and PRs; Google Drive Project Diary is for coordination, checkpoints and handoffs. Do not duplicate code in Drive. The public GitHub repository is `RaulZion/OpenTheme-Studio`. The root pnpm lockfile and clean frozen-install proof remain a G0 prerequisite before implementation assignments.
 
 ## Project links
 
 - Google Drive project folder: https://drive.google.com/drive/folders/1gqlV0qy_7ZnL1CeBcMCVHfivAXeuwiTU
 - Google Drive Project Diary folder: https://drive.google.com/drive/folders/1Sy1wQqHtl8SwN3I3i1l5EZekfUFIzXlN
 - Research folder: https://drive.google.com/drive/folders/1eVQnrJhA8caNqpkRLDdTbPVAKB1vspNR
-- GitHub remote: **not created / not configured**. A local offline candidate commit is not a published baseline.
+- GitHub repository: https://github.com/RaulZion/OpenTheme-Studio (remote SHA must be checked from GitHub before any agent starts).
 
 ## G0 contract candidate
 
-- Accepted architectural decisions: `ADR-0001`, `ADR-0002`, `ADR-0003` (candidate pending remote).
+- Accepted architectural decisions: `ADR-0001`, `ADR-0002`, `ADR-0003` (versioned in the published baseline).
 - Official test targets: `contracts/targets.json` (not actual installed compatibility).
 - Normative adapter types: `contracts/adapter-api.ts`; fixture and JSON Schema in `contracts/`.
 - Local checks: `node --test scripts/*.test.mjs` and `python -m unittest discover -s contracts/tests -p test_*.py -v` (the latter requires `jsonschema`).
@@ -51,4 +51,4 @@ Adopt the established split **once the project is initialized**: GitHub for sour
 
 ## Immediate next action
 
-Have the ChatGPT orchestrator establish G0 and a GitHub baseline. Then send Codex, Gemini and Claude their prepared prompts. **Do not interpret this scaffold as proof of code, exports, user research, or real-app tests.**
+Confirm published GitHub `main` SHA and a clean `pnpm install --frozen-lockfile` from a committed lockfile. Then send Codex, Gemini and Claude their prepared prompts. **Do not interpret this scaffold as proof of code, exports, user research, or real-app tests.**
