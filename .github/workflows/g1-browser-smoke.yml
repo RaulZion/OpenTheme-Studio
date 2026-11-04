@@ -6,7 +6,7 @@ permissions:
 jobs:
   browser-ui-native-zip:
     if: github.head_ref == 'integration/g1-mvp'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
