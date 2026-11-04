@@ -133,7 +133,7 @@ export default function App() {
     </div>
     <footer className="studio-footer"><span><span className="tiny-dot" /> DEVELOPMENT PREVIEW</span><span>Made for a more personal workspace.</span><span>Project schema 1.0.0</span></footer>
     {notice && <div className={`notice ${error ? 'notice-error' : ''}`} role={error ? 'alert' : 'status'}>{error ? <CircleHelp size={17} /> : <Check size={17} />}<span>{notice}</span><button aria-label="Dismiss notification" className="icon-button" onClick={() => setNotice('')}><X size={15} /></button></div>}
-    {dialog === 'export' && <ExportDialog project={project} app={app} onClose={() => setDialog(null)} onSave={saveProject} />}
+    {dialog === 'export' && <ExportDialog project={project} app={app} onClose={() => { setDialog(null); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('button[aria-label="Export theme"]')?.focus()); }} onSave={saveProject} />}
     {dialog === 'help' && <HelpDialog onClose={() => setDialog(null)} />}
   </div>;
 }
