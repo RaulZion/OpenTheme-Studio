@@ -74,14 +74,15 @@ describe('visual editor', () => {
     expect(JSON.parse(localStorage.getItem('opentheme.project.v1')!).mode).toBe('dark');
     expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
   });
-  it('reports unavailable native export honestly and restores dialog focus', async () => {
+  it('offers native ZIP export, labels unverified installation, and restores dialog focus', async () => {
     const user = userEvent.setup();
     render(<App />);
     const trigger = screen.getByRole('button', { name: 'Export theme' });
     await user.click(trigger);
     const dialog = screen.getByRole('dialog', { name: 'Export your theme' });
-    expect(within(dialog).getByText('Native export is not available', { exact: true })).toBeVisible();
-    expect(within(dialog).getByRole('button', { name: 'Native export unavailable' })).toBeDisabled();
+    expect(within(dialog).getByText('Native theme files ready')).toBeVisible();
+    expect(within(dialog).getByRole('button', { name: 'Download VS Code theme ZIP' })).toBeEnabled();
+    expect(within(dialog).getByText(/Target version not independently verified/)).toBeVisible();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
