@@ -5,8 +5,9 @@ on:
       - 'apps/web/package.json'
       - 'packages/**/package.json'
       - '.github/workflows/g1-lockfile-candidate.yml'
+      - 'apps/web/src/native-export.ts'
 permissions:
-  contents: read
+  contents: write
 jobs:
   prepare-g1-lockfile:
     if: github.head_ref == 'integration/g1-mvp'
@@ -14,6 +15,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: integration/g1-mvp
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
@@ -22,7 +26,7 @@ jobs:
           corepack enable
           corepack pnpm --version
           corepack pnpm install --lockfile-only
-      - name: Upload G1 lockfile (must be committed and this workflow removed before merge)
+      - name: Upload G1 lockfile for audit
         uses: actions/upload-artifact@v4
         with:
           name: g1-pnpm-lockfile-candidate
@@ -33,3 +37,14 @@ jobs:
           corepack pnpm install --frozen-lockfile
           corepack pnpm -r --if-present test
           corepack pnpm -r --if-present build
+      - name: Commit generated lockfile to integration branch only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo 'Lockfile already matches dependencies'
+          else
+            git commit -m 'build(g1): lock pnpm integration dependencies'
+            git push origin HEAD:integration/g1-mvp
+          fi
