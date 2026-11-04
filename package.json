@@ -1,0 +1,17 @@
+{
+  "name": "opentheme-studio",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Local-first cross-application visual theme editor",
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "test:contract": "python -m unittest discover -s contracts/tests -p test_*.py -v",
+    "test:workspace": "pnpm -r --if-present test",
+    "dev": "pnpm --filter @opentheme/web dev",
+    "build": "pnpm -r --if-present build"
+  }
+}

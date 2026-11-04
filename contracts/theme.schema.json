@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:opentheme-studio:theme-project:1.0.0",
+  "title": "OpenTheme Studio ThemeProject",
+  "description": "Portable theme project. Bootstrap contract v1. appOverrides roles are adapter-specific and strictly validated by adapters.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "name",
+    "mode",
+    "tokens"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "allOf": [
+        {
+          "pattern": "\\S"
+        },
+        {
+          "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+        }
+      ]
+    },
+    "mode": {
+      "enum": [
+        "light",
+        "dark"
+      ]
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canvas",
+        "surface",
+        "surfaceRaised",
+        "text",
+        "textMuted",
+        "border",
+        "accent",
+        "accentText",
+        "selection",
+        "error",
+        "warning",
+        "success"
+      ],
+      "properties": {
+        "canvas": {
+          "$ref": "#/$defs/color"
+        },
+        "surface": {
+          "$ref": "#/$defs/color"
+        },
+        "surfaceRaised": {
+          "$ref": "#/$defs/color"
+        },
+        "text": {
+          "$ref": "#/$defs/color"
+        },
+        "textMuted": {
+          "$ref": "#/$defs/color"
+        },
+        "border": {
+          "$ref": "#/$defs/color"
+        },
+        "accent": {
+          "$ref": "#/$defs/color"
+        },
+        "accentText": {
+          "$ref": "#/$defs/color"
+        },
+        "selection": {
+          "$ref": "#/$defs/color"
+        },
+        "error": {
+          "$ref": "#/$defs/color"
+        },
+        "warning": {
+          "$ref": "#/$defs/color"
+        },
+        "success": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "syntax": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "comments": {
+          "$ref": "#/$defs/color"
+        },
+        "keywords": {
+          "$ref": "#/$defs/color"
+        },
+        "strings": {
+          "$ref": "#/$defs/color"
+        },
+        "numbers": {
+          "$ref": "#/$defs/color"
+        },
+        "types": {
+          "$ref": "#/$defs/color"
+        }
+      }
+    },
+    "appOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "pattern": "^(?:--[a-z][a-zA-Z0-9-]{0,127}|[a-z][a-zA-Z0-9_.-]{0,127})$"
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/color"
+        }
+      },
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]{1,63}$"
+      }
+    }
+  },
+  "$defs": {
+    "color": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    }
+  }
+}

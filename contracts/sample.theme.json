@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "midnight-sea",
+  "name": "Midnight Sea",
+  "mode": "dark",
+  "tokens": {
+    "canvas": "#171C25",
+    "surface": "#202734",
+    "surfaceRaised": "#303A4B",
+    "text": "#F1F3F5",
+    "textMuted": "#ACBBCB",
+    "border": "#495568",
+    "accent": "#91B1F1",
+    "accentText": "#101723",
+    "selection": "#48698F",
+    "error": "#EC8B99",
+    "warning": "#E1BD79",
+    "success": "#8CC9AD"
+  },
+  "syntax": {
+    "comments": "#9AAABC",
+    "keywords": "#BD9DE8",
+    "strings": "#8CC9AD",
+    "numbers": "#E1BD79",
+    "types": "#91B1F1"
+  },
+  "appOverrides": {
+    "obsidian": {
+      "--background-primary": "#171C25"
+    }
+  }
+}

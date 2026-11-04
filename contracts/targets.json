@@ -1,0 +1,36 @@
+{
+  "verifiedOn": "2026-11-04",
+  "semantics": "documentation target only; runtime compatibility is unverified",
+  "g1": [
+    {
+      "id": "vscode",
+      "version": "1.144.0",
+      "channel": "stable",
+      "releaseDate": "2026-10-28",
+      "source": "https://code.visualstudio.com/updates/v1_144",
+      "installedTestStatus": "not-run"
+    },
+    {
+      "id": "obsidian",
+      "version": "1.15.0",
+      "channel": "public",
+      "releaseDate": "2026-11-02",
+      "source": "https://obsidian.md/changelog/2026-11-02-desktop-v1.15.0/",
+      "installedTestStatus": "not-run"
+    }
+  ],
+  "g2ResearchOnly": [
+    {
+      "id": "blender",
+      "version": "4.5 LTS",
+      "source": "https://docs.blender.org/manual/en/4.5/editors/preferences/themes.html",
+      "installedTestStatus": "not-run"
+    },
+    {
+      "id": "blender",
+      "version": "5.0",
+      "source": "https://developer.blender.org/docs/release_notes/5.0/migration/theme_migration/",
+      "installedTestStatus": "not-run"
+    }
+  ]
+}
