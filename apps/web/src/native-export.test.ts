@@ -12,6 +12,7 @@ describe('G1 native export bridge', () => {
     expect(fileName).toBe('midnight-sea-' + app + '-theme.zip');
     expect(result.issues.filter(issue => issue.severity === 'error')).toEqual([]);
     const paths = Object.keys(unzipSync(bytes));
+    console.info('G1 ZIP diagnostic', app, 'zip bytes', bytes.length, 'prefix', Array.from(bytes.slice(0, 8)), 'entries', paths.length, 'first', paths.slice(0, 7));
     expect(paths).toHaveLength(3);
     expect(paths.every(path => path.startsWith('midnight-sea' + (app === 'vscode' ? '-0.0.1/' : '/')))).toBe(true);
     expect(nativeAdapter(app).supportedVersions.length).toBeGreaterThan(0);
