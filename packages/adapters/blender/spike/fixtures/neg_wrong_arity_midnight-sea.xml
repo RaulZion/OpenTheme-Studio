@@ -1,0 +1,12 @@
+<bpy>
+  <Theme>
+    <user_interface>
+      <ThemeUserInterface
+        panel_back="#303A4B"
+        >
+      </ThemeUserInterface>
+    </user_interface>
+  </Theme>
+  <ThemeStyle>
+  </ThemeStyle>
+</bpy>

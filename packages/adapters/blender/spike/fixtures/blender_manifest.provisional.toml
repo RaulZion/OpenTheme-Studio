@@ -1,0 +1,9 @@
+schema_version = "1.0.0"
+id = "opentheme_midnight_sea"
+version = "0.0.1"
+name = "Midnight Sea (OpenTheme Studio spike)"
+tagline = "Provisional OpenTheme Studio research spike theme"
+maintainer = "OpenTheme Studio contributors"
+type = "theme"
+blender_version_min = "5.0.0"
+license = ["SPDX:MIT"]

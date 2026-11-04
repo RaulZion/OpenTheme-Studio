@@ -1,0 +1,102 @@
+[
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "panel_back",
+  "expected": "#303a4bff"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "panel_header",
+  "expected": "#202734ff"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "panel_text",
+  "expected": "#f1f3f5"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "panel_title",
+  "expected": "#f1f3f5"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "editor_border",
+  "expected": "#171c25"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface",
+  "attr": "widget_text_cursor",
+  "expected": "#91b1f1"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface/wcol_regular/ThemeWidgetColors",
+  "attr": "inner",
+  "expected": "#303a4bff"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface/wcol_regular/ThemeWidgetColors",
+  "attr": "inner_sel",
+  "expected": "#91b1f1ff"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface/wcol_regular/ThemeWidgetColors",
+  "attr": "text",
+  "expected": "#f1f3f5"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface/wcol_regular/ThemeWidgetColors",
+  "attr": "text_sel",
+  "expected": "#101723"
+ },
+ {
+  "path": "user_interface/ThemeUserInterface/wcol_regular/ThemeWidgetColors",
+  "attr": "outline",
+  "expected": "#495568ff"
+ },
+ {
+  "path": "regions/ThemeRegions/sidebars/ThemeRegionsSidebars",
+  "attr": "back",
+  "expected": "#202734ff"
+ },
+ {
+  "path": "properties/ThemeProperties/space/ThemeSpaceGeneric",
+  "attr": "back",
+  "expected": "#171c25"
+ },
+ {
+  "path": "properties/ThemeProperties/space/ThemeSpaceGeneric",
+  "attr": "text",
+  "expected": "#f1f3f5"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor",
+  "attr": "selected_text",
+  "expected": "#48698f"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor",
+  "attr": "syntax_comment",
+  "expected": "#9aaabc"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor",
+  "attr": "syntax_string",
+  "expected": "#8cc9ad"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor",
+  "attr": "syntax_numbers",
+  "expected": "#e1bd79"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor",
+  "attr": "syntax_reserved",
+  "expected": "#bd9de8"
+ },
+ {
+  "path": "text_editor/ThemeTextEditor/space/ThemeSpaceGeneric",
+  "attr": "back",
+  "expected": "#171c25"
+ }
+]
