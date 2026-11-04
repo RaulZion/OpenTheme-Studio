@@ -32,11 +32,6 @@ jobs:
           name: g1-pnpm-lockfile-candidate
           path: pnpm-lock.yaml
           if-no-files-found: error
-      - name: Run integration install, workspace tests and build
-        run: |
-          corepack pnpm install --frozen-lockfile
-          corepack pnpm -r --if-present test
-          corepack pnpm -r --if-present build
       - name: Commit generated lockfile to integration branch only
         run: |
           git config user.name 'github-actions[bot]'
@@ -48,3 +43,8 @@ jobs:
             git commit -m 'build(g1): lock pnpm integration dependencies'
             git push origin HEAD:integration/g1-mvp
           fi
+      - name: Run integration install, workspace tests and build
+        run: |
+          corepack pnpm install --frozen-lockfile
+          corepack pnpm -r --if-present test
+          corepack pnpm -r --if-present build
