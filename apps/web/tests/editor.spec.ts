@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { unzipSync, strFromU8 } from 'fflate';
 import { readFile, mkdir } from 'node:fs/promises';
 import sample from '../../../contracts/sample.theme.json' with { type: 'json' };
 
@@ -72,8 +73,16 @@ test('export disclosure, dialog focus loop and light studio appearance', async (
   const trigger = page.getByRole('button', { name: 'Export theme' });
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Export your theme' });
-  await expect(dialog.getByText('Native export is not available', { exact: true })).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Native export unavailable' })).toBeDisabled();
+  await expect(dialog.getByText('Native theme files ready', { exact: true })).toBeVisible();
+  const zipDownload = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Download VS Code theme ZIP' }).click();
+  const zip = await zipDownload;
+  expect(zip.suggestedFilename()).toBe('midnight-sea-vscode-theme.zip');
+  const archive = unzipSync(new Uint8Array(await readFile((await zip.path())!)));
+  expect(archive['midnight-sea-0.0.1/package.json']).toBeDefined();
+  expect(archive['midnight-sea-0.0.1/themes/midnight-sea-color-theme.json']).toBeDefined();
+  const manifest = JSON.parse(strFromU8(archive['midnight-sea-0.0.1/package.json']));
+  expect(manifest.contributes.themes[0].path).toBe('./themes/midnight-sea-color-theme.json');
   const close = dialog.getByRole('button', { name: 'Close dialog' });
   await expect(close).toBeFocused();
   await page.keyboard.press('Shift+Tab');
