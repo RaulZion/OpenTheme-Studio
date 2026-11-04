@@ -11,9 +11,6 @@
       "import": "./src/index.js"
     }
   },
-  "dependencies": {
-    "@opentheme/core": "workspace:*"
-  },
   "scripts": {
     "test": "node --test test/**/*.test.js"
   }
