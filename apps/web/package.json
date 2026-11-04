@@ -11,10 +11,14 @@
     "test:browser": "playwright test"
   },
   "dependencies": {
+    "@opentheme/core": "workspace:*",
+    "@opentheme/adapter-vscode": "workspace:*",
+    "@opentheme/adapter-obsidian": "workspace:*",
     "ajv": "8.17.1",
     "lucide-react": "0.468.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "fflate": "0.8.2"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
