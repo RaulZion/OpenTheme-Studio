@@ -1,0 +1,22 @@
+{
+ "blender_version": [
+  5,
+  2,
+  3
+ ],
+ "blender_version_string": "5.2.3 LTS",
+ "build_hash": "e13b728c6880",
+ "checked": {},
+ "exception": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Blender\\5.2\\scripts\\startup\\bl_operators\\presets.py\", line 312, in execute\n    rna_xml.xml_file_run(context, filepath, preset_xml_map, secure_types=preset_xml_secure_types)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Blender\\5.2\\scripts\\modules\\_rna_xml.py\", line 396, in xml_file_run\n    xml_node = bpy_xml.getElementsByTagName(xml_tag)[0]\n               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\nIndexError: list index out of range\nLocation: <REPO>\\packages\\adapters\\blender\\spike\\runner\\tools\\native_check.py:82\n",
+ "factory_startup": true,
+ "loader_warnings": [],
+ "mismatches": [],
+ "operator_result": [
+  "EXCEPTION"
+ ],
+ "pass": false,
+ "rna_labels": {},
+ "theme_filepath_after": "",
+ "user_config_dir": "<SCRATCH>\\native\\run2_5.2.3\\profile_nms",
+ "xml": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\missing_themestyle.xml"
+}

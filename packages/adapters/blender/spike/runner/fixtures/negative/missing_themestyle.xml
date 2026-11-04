@@ -1,0 +1,8 @@
+<bpy>
+  <Theme>
+    <user_interface>
+      <ThemeUserInterface editor_border="#495568">
+      </ThemeUserInterface>
+    </user_interface>
+  </Theme>
+</bpy>

@@ -1,0 +1,4 @@
+Blender 5.2.3 LTS
+  build date: 2026-10-22
+  build hash: e13b728c6880
+  build branch: blender-v5.2-release

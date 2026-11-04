@@ -133,3 +133,32 @@ The full 5.2.3 LTS color inventory (property paths and arity) is in `packages/ad
 - [S6] Blender 4.5 Manual, Extensions Command Line Arguments: https://docs.blender.org/manual/en/4.5/advanced/command_line/extension_arguments.html
 - [S7] Blender 5.0 release notes, Theme Migration: https://developer.blender.org/docs/release_notes/5.0/migration/theme_migration/
 - Installed Blender 5.2.3 LTS scripts (read locally): `scripts/modules/_rna_xml.py`, `scripts/startup/bl_operators/presets.py`, `scripts/startup/bl_operators/userpref.py`, `scripts/startup/bl_ui/space_userpref.py`.
+
+## 9. Addendum — second independent pass (2026-11-04, same build, same isolation)
+
+Additive to §1–§8; nothing above was changed. Tags: **[SRC-4.5]/[SRC-5.0]** = official source on `projects.blender.org`, branches `blender-v4.5-release` / `blender-v5.0-release` (documentary, not runtime proof); **[N-5.2.3]** = run on Blender 5.2.3 LTS with `packages/adapters/blender/spike/runner/tools/run_native_checks.sh`; results in `spike/runner/results-5.2.3/`. Still **no 4.5 or 5.0 run**.
+
+**A. Target-branch source confirms the §3 source facts for 4.5 and 5.0 (not only 5.2).** [SRC-4.5][SRC-5.0]
+- `rna_xml.py` (4.5) and `_rna_xml.py` (5.0) are byte-identical apart from the module rename: unknown attribute → `print("… not found")`; unknown element → silently skipped; collection length mismatch → `Size Mismatch!` and skip.
+- The theme menu's `reset_cb` calls `reset_default_theme()` before applying, in both branches. Blender's own `Blender_Dark.xml` is an empty `<Theme></Theme><ThemeStyle></ThemeStyle>` in both, so a sparse XML over the default theme is an officially used pattern.
+- `preset_xml_secure_types`: 33 types in 4.5, 39 in 5.0 (adds `ThemeCommon`, `ThemeCommonAnim`, `ThemeCommonCurves`, `ThemeRegions*`; drops `ThemeAssetShelf`, `ThemePanelColors`); 5.2.3 equals 5.0. A 4.5 file's `ThemePanelColors` cannot be applied by 5.x at all.
+- `.py` presets are executed and the theme menu lists `.py` (no `preset_extensions` override) in 4.5 and 5.0; `theme_install` defaults to `overwrite=True` in both.
+- Theme extensions: on enable Blender applies the **first `.xml` in sorted order** of the package folder (`pkg_theme_file_list`). Ship exactly one XML. [SRC]
+
+**B. Version brackets — `blender_version_max` is the only native fail-closed guard.** [N-5.2.3]
+- 5.2.3 refused packages with `blender_version_max = "5.1.0"` and `"5.0.0"` ("This Blender version (5.2.3) must be less than the maximum version …") while the plain-XML route has no version check.
+- Recommendation for §5.7: pin both ends per verified series — 4.5 layout `["4.5.0", "5.0.0")` (no evidence yet that 4.2–4.4 share the 4.5 layout), 5.0 layout `["5.0.0", "5.1.0")`. An open-ended `blender_version_min = "5.0.0"` would also install on 5.1/5.2, whose schema already differs from 5.0: `ThemeDopeSheet.interpolation_line` exists in 5.0 source but not in 5.2.3; `anim_interpolation_{constant,linear,other}`, `ThemeView3D.grid_major`, `grid_axis_brightness`, `gp_wire_edit`, `ThemeUserInterface.link` exist in 5.2.3 but not in 5.0 source (identifier-level comparison).
+
+**C. Release status supports request C2.** blender.org lists **4.5 LTS (4.5.15, 2026-10-22, supported until July 2027)** and **5.2 LTS (5.2.3, 2026-10-22)** as maintained; **5.0** shipped 2025-11-18 and its last patch is **5.0.1 (2025-12-16)** — a superseded non-LTS release. Sources: https://www.blender.org/download/lts/ , https://www.blender.org/download/lts/4-5/ , https://www.blender.org/download/releases/5-0/ .
+
+**D. Manifest and package checks.** [N-5.2.3]
+- `id = "midnight-sea"` (the sample `projectId`) → "Not a valid Python identifier"; `midnight__sea` → "Only single separators are supported"; `midnight_sea_` → "Names must not end with a "_"". The schema's `projectId` allows all three shapes, so the adapter needs a mapping such as `ots_` + hyphen runs → `_`, trailing `_` stripped (note `a-b` and `a--b` collide).
+- Rejected as expected: leading space in `name`, unescaped `"` (TOML parse error), `"C:\new"` (TOML `\n` → control character), tagline ending in `.`, tagline of 65 chars.
+- A ZIP whose members include `../x.xml`, `/x.xml`, `sub/../../x.xml`, `C:/x.xml` **passed `extension validate`**; `install-file` rewrote them into the package folder (Python `ZipFile.extract` behaviour). Blender is not a ZIP-safety check for our output.
+- Harness traps: `install-file` printed `ERROR …` yet exited **0**; it also wrote `userpref.blend` into the profile despite `--factory-startup`. Gate scripts must parse text and always isolate the profile.
+
+**E. Mapping notes.**
+- Bundled `Blender_Light.xml` is not an authoritative schema: the 5.0 file lacks `wcol_curve`, `channel_selected`, `panel_active` present in 5.0 RNA source and writes 4 channels for `panel_title`/`panel_text`, which 5.0 RNA defines as 3 (5.2.3 silently kept 3). Use per-build RNA dumps (`spike/scripts/inventory.py` or `spike/runner/tools/rna_theme_schema.py`, which walks every collection item).
+- Structural size of the change, from the two official `Blender_Light.xml` files: 4.5 = 1110 attribute paths, 5.0 = 778, 699 shared, 411 removed (mostly per-editor space colors), 79 added.
+- Syntax keywords: §4 maps them to `syntax_reserved`; the runner fixture uses `syntax_builtin` (UI label "Syntax Built-In"). Both are unverified hypotheses until a GUI check (B2).
+- Runner 5.x fixture: 32/32 values applied exactly on 5.2.3, 0 loader warnings. Runner 4.5-layout fixture on 5.2.3: `FINISHED`, 0 warnings, 6 per-editor panel values silently lost — the expected wrong-version result; it has **not** been run on 4.5.
