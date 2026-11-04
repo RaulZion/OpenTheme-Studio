@@ -1,0 +1,11 @@
+✔ root workspace locks its package manager and JS baseline (2.5348ms)
+✔ canonical schema and example agree on version and required roles (2.1405ms)
+✔ version targets are separated from installed verification (1.7427ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.1359

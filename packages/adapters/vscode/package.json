@@ -1,0 +1,17 @@
+{
+  "name": "@opentheme/adapter-vscode",
+  "version": "0.1.0",
+  "description": "Visual Studio Code 1.144.0 stable native theme adapter for OpenTheme Studio",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  }
+}
