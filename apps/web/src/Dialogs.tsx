@@ -13,6 +13,18 @@ function Dialog({ title, children, onClose }: { title: string; children: ReactNo
     container.current?.querySelector<HTMLButtonElement>('button')?.focus();
     return () => previous?.focus();
   }, []);
+  useEffect(() => {
+    // A browser download can move keyboard focus outside the dialog.
+    // Keep Escape functional while this modal remains mounted.
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    };
+    document.addEventListener('keydown', onEscape, true);
+    return () => document.removeEventListener('keydown', onEscape, true);
+  }, [onClose]);
   return <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div ref={container} className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" onKeyDown={event => {
       if (event.key === 'Escape') { event.stopPropagation(); onClose(); }
