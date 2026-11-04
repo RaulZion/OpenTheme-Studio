@@ -1,0 +1,34 @@
+name: G1 integrated browser smoke
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  browser-ui-native-zip:
+    if: github.head_ref == 'integration/g1-mvp'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Install frozen dependencies
+        run: |
+          corepack enable
+          corepack pnpm install --frozen-lockfile
+      - name: Build production UI
+        run: corepack pnpm --filter @opentheme/web build
+      - name: Install Chromium runner
+        run: corepack pnpm --filter @opentheme/web exec playwright install --with-deps chromium
+      - name: Test actual browser interactions and native ZIP download
+        run: corepack pnpm --filter @opentheme/web test:browser
+      - name: Upload failure artifacts if needed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g1-browser-failure
+          path: |
+            apps/web/test-results/
+            apps/web/output/playwright/
+          if-no-files-found: ignore
