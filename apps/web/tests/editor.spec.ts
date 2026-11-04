@@ -74,6 +74,12 @@ test('export disclosure, dialog focus loop and light studio appearance', async (
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Export your theme' });
   await expect(dialog.getByText('Native theme files ready', { exact: true })).toBeVisible();
+  const close = dialog.getByRole('button', { name: 'Close dialog' });
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(dialog.getByRole('button', { name: 'Download project JSON' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
   const zipDownload = page.waitForEvent('download');
   await dialog.getByRole('button', { name: 'Download VS Code theme ZIP' }).click();
   const zip = await zipDownload;
@@ -83,12 +89,6 @@ test('export disclosure, dialog focus loop and light studio appearance', async (
   expect(archive['midnight-sea-0.0.1/themes/midnight-sea-color-theme.json']).toBeDefined();
   const manifest = JSON.parse(strFromU8(archive['midnight-sea-0.0.1/package.json']));
   expect(manifest.contributes.themes[0].path).toBe('./themes/midnight-sea-color-theme.json');
-  const close = dialog.getByRole('button', { name: 'Close dialog' });
-  await expect(close).toBeFocused();
-  await page.keyboard.press('Shift+Tab');
-  await expect(dialog.getByRole('button', { name: 'Download project JSON' })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(close).toBeFocused();
   await page.screenshot({ path: 'output/playwright/export-disclosure.png', fullPage: true });
   await page.keyboard.press('Escape');
   await expect(trigger).toBeFocused();
