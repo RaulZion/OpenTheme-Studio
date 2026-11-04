@@ -64,3 +64,13 @@ Before these prompts execute, the coordinator must communicate the actual GitHub
 - **OTS-131 — NOT STARTED:** integration and native app installation evidence belong to later gates.
 
 No agent may modify another agent's owned directory. Root/shared configuration and contract changes remain coordinator-owned. See `docs/gates/G0_REPRODUCIBILITY_CHECKPOINT.md` for exact evidence and outstanding items.
+
+## G1 MVP integration checkpoint (2026-11-04; supersedes older G0 status entries)
+
+- **G0**: completed and verified on `main` at `06eda81c59d46e7ff3abb5977a041ff00e86552c`; post-merge frozen CI passed.
+- **OTS-101/102 (Codex)**: implementation submitted in PR #6, head `9f2de6b1cf4c46ed5b6d8c65fbd3fa79da063c4d`; original PR CI red because the shared G0 lockfile lacked the new web dependencies; controller reconciled this centrally, not by changing Codex's branch.
+- **OTS-111/112/113 (Gemini)**: implementation submitted in PR #4, head `7b39eb1a2b8c43d50d6aadf280a3564ff9b30b10`; native version installation is not fully proven.
+- **OTS-121/122 (Claude)**: separate Blender feasibility/risk PR #5; not an MVP build dependency and not a reviewer for the other agents.
+- **OTS-131 (controller)**: G1 integration PR #7 assembles Codex and Gemini work on `integration/g1-mvp`, links native adapters to the ZIP-download UI, adds one-pass integration tests and fixes CSS comment injection. Web and adapter unit suites and typecheck/build passed in initial combined GitHub Actions; browser QA and final frozen CI checks must pass before merge.
+- **MVP delivery rule**: no peer-review chains. One combined integration gate for critical flows and safe exports; all P2/P3 polish deferred. Merging a runnable candidate does **not** claim native-application verification for exact VS Code 1.144.0 / Obsidian 1.15.0 targets.
+- **Governance**: main branch protection remains open under issue #2. It is independent of native export correctness.
