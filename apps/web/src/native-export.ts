@@ -1,4 +1,4 @@
-import { zipSync } from 'fflate';
+import { zipSync, strToU8 } from 'fflate';
 import type { ExportFile, ExportResult, ThemeAdapter, ThemeProject } from '../../../contracts/adapter-api';
 import { vsCodeAdapter } from '@opentheme/adapter-vscode';
 import { obsidianAdapter } from '@opentheme/adapter-obsidian';
@@ -41,10 +41,10 @@ export async function createNativeArchive(project: ThemeProject, app: EditorApp)
     }
     seen.add(file.path);
     members[folder + '/' + file.path] =
-      typeof file.content === 'string' ? new TextEncoder().encode(file.content) : file.content;
+      typeof file.content === 'string' ? strToU8(file.content) : strToU8(new TextDecoder().decode(file.content));
   }
 
-  const bytes = zipSync(members, { level: 0 });
+  const bytes = zipSync(members, { level: 0, mtime: new Date('1980-01-01T00:00:00Z') });
   return { bytes, fileName: project.projectId + '-' + app + '-theme.zip', result };
 }
 
