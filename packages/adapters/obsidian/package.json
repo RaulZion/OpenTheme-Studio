@@ -1,0 +1,20 @@
+{
+  "name": "@opentheme/adapter-obsidian",
+  "version": "0.1.0",
+  "description": "Obsidian 1.15.0 public native theme adapter for OpenTheme Studio",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "dependencies": {
+    "@opentheme/core": "workspace:*"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  }
+}
