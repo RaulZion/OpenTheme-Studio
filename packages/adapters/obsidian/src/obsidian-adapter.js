@@ -325,7 +325,7 @@ export function buildObsidianThemeCss(project) {
   const selector = project.mode === 'light' ? '.theme-light' : '.theme-dark';
 
   const lines = [
-    `/* ${project.name} — OpenTheme Studio theme for Obsidian ${OBSIDIAN_SUPPORTED_VERSION} */`,
+    `/* OpenTheme Studio theme ${project.projectId} for Obsidian ${OBSIDIAN_SUPPORTED_VERSION} */`,
     `${selector} {`,
   ];
 
