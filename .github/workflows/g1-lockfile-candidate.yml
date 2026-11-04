@@ -1,0 +1,35 @@
+name: G1 lockfile candidate (temporary integration)
+on:
+  pull_request:
+    paths:
+      - 'apps/web/package.json'
+      - 'packages/**/package.json'
+      - '.github/workflows/g1-lockfile-candidate.yml'
+permissions:
+  contents: read
+jobs:
+  prepare-g1-lockfile:
+    if: github.head_ref == 'integration/g1-mvp'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Generate lockfile with pinned pnpm
+        run: |
+          corepack enable
+          corepack pnpm --version
+          corepack pnpm install --lockfile-only
+      - name: Upload G1 lockfile (must be committed and this workflow removed before merge)
+        uses: actions/upload-artifact@v4
+        with:
+          name: g1-pnpm-lockfile-candidate
+          path: pnpm-lock.yaml
+          if-no-files-found: error
+      - name: Run integration install, workspace tests and build
+        run: |
+          corepack pnpm install --frozen-lockfile
+          corepack pnpm -r --if-present test
+          corepack pnpm -r --if-present build
