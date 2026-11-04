@@ -2,7 +2,7 @@
 
 Open-source, local-first visual theme studio for multiple applications with **officially supported theme APIs and file formats**. The project's value proposition is not simply converting palettes; it is a usable click-to-edit preview, one semantic palette, application-specific refinement, and safe native exports.
 
-**Status as of 2026-11-04: the public G0 source baseline is published on GitHub at `6853aef636d2d7806d9b4a61256a3672d0a9fdbe`.** G0 reproducibility hardening (committed pnpm lockfile and frozen CI installation) is under review. This is **not yet a runnable theme editor**; Codex, Gemini and Claude have not implemented their packages.
+**Status as of 2026-11-04:** G0 was merged and validated on `main` (`06eda81c59d46e7ff3abb5977a041ff00e86552c`). The first **runnable G1 MVP candidate** is in [integration PR #7](https://github.com/RaulZion/OpenTheme-Studio/pull/7): a visual editor with local JSON save/import and native VS Code/Obsidian theme ZIP downloads. It is not a verified native-compatibility release; target-version installation evidence is still required.
 
 ## Start here
 
@@ -32,7 +32,7 @@ Open-source, local-first visual theme studio for multiple applications with **of
 
 ## Source-of-truth convention
 
-GitHub is authoritative for source, versioned architecture/contracts/tests, issues and PRs; Google Drive Project Diary is for coordination, checkpoints and handoffs. Do not duplicate code in Drive. The public GitHub repository is `RaulZion/OpenTheme-Studio`. The G0 reproducibility PR includes the root pnpm lockfile. Passing CI against that committed lockfile, review, and a verified merge to `main` remain prerequisites before implementation assignments.
+GitHub is authoritative for source, versioned architecture/contracts/tests, issues and PRs; Google Drive Project Diary is for coordination, checkpoints and handoffs. Do not duplicate code in Drive. The public GitHub repository is `RaulZion/OpenTheme-Studio`. G0 reproducibility is complete on `main`; the G1 integration branch maintains a new pinned lockfile for the UI dependencies. Release acceptance also requires target-application installation evidence; unverified version claims remain explicitly labeled.
 
 ## Project links
 
@@ -47,8 +47,20 @@ GitHub is authoritative for source, versioned architecture/contracts/tests, issu
 - Official test targets: `contracts/targets.json` (not actual installed compatibility).
 - Normative adapter types: `contracts/adapter-api.ts`; fixture and JSON Schema in `contracts/`.
 - Local checks: `node --test scripts/*.test.mjs` and `python -m unittest discover -s contracts/tests -p test_*.py -v` (the latter requires `jsonschema`).
-- Root pnpm workspace is configured; `pnpm-lock.yaml` was recovered from a successful initial Actions job (which generated it) and proposed for version control. A fresh PR run must succeed using `pnpm install --frozen-lockfile` without generating a lockfile.
+- Root pnpm workspace and frozen-install CI were accepted at G0; the G1 PR includes its own updated committed lockfile for the UI and exporter workspaces.
+
+## Run the integrated MVP candidate
+
+After the G1 integration PR merges, use Node 22.16+ and the pinned pnpm version:
+
+```sh
+corepack enable
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter @opentheme/web dev
+```
+
+Open the localhost URL printed by Vite. Choose VS Code or Obsidian, click a preview region, edit colors, use undo/redo, and download the native theme ZIP. The ZIP includes manual installation instructions. It does **not** install themes automatically and preview scenes are illustrative.
 
 ## Immediate next action
 
-Review the G0 reproducibility PR and require a successful frozen-install workflow; once merged, re-read `main` SHA and send Codex, Gemini and Claude their prepared prompts with that exact SHA. **Do not interpret this scaffold as proof of code, exports, user research, or real-app tests.**
+Complete the single G1 integration QA in [PR #7](https://github.com/RaulZion/OpenTheme-Studio/pull/7), then merge the verified MVP candidate and separately obtain native install evidence for VS Code 1.144.0 / Obsidian 1.15.0. Blender remains G2, not a blocker for G1.
