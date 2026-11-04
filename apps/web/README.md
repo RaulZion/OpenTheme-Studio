@@ -2,20 +2,26 @@
 
 React/TypeScript/Vite studio. All preview HTML/CSS is original, illustrative, and not native app evidence. No remote fonts, assets, accounts, telemetry, app installation, or backend.
 
-## Run independently from the frozen G0 base
+## Run the integrated MVP
 
-Node >=22.12.0. From the repository root:
+From repository root, with Node 22.16+ and pnpm 10.34.9:
 
-```powershell
-npm install --prefix apps/web --workspaces=false --package-lock=false --no-audit --no-fund
-npm run dev --prefix apps/web
-npm test --prefix apps/web
-npm run build --prefix apps/web
-npm exec --prefix apps/web -- playwright install chromium
-npm run test:browser --prefix apps/web
+```sh
+corepack enable
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter @opentheme/web dev
+corepack pnpm -r --if-present test
+corepack pnpm -r --if-present build
 ```
 
-Browser tests serve the built production bundle at 127.0.0.1:4173. Build before running them. Screenshots are written to apps/web/output/playwright. Vitest uses one thread worker because process-worker startup timed out on this Windows host.
+For optional browser tests (requires installed Chromium):
+
+```sh
+corepack pnpm --filter @opentheme/web exec playwright install chromium
+corepack pnpm --filter @opentheme/web test:browser
+```
+
+Native theme ZIPs include package files and a README for manual installation. They are **not** VSIX packages or one-click installers. Preview scenes remain illustrative and real target-version installations are still a separate G1 acceptance test.
 
 ## Included flow
 
@@ -25,15 +31,11 @@ Undo/redo retains up to 100 document snapshots. Ctrl/Command Z and Shift Z apply
 
 Edits auto-save in this browser's localStorage, when available. Download canonical project JSON for a portable backup; browser storage can be cleared. If saved data cannot be restored, it is left untouched and this session stays in memory; download JSON to retain edits. Imports are limited to 1 MiB and validated against the unchanged canonical JSON Schema. Safe unknown app overrides are retained for future adapters. Optional syntax colors are preserved and shown; this slice does not expose a syntax editor.
 
-## Adapter integration boundary
+## Integrated export boundary
 
-src/development-adapters.ts implements the canonical ThemeAdapter type from contracts/adapter-api.ts. It declares **zero verified supportedVersions**, returns preview-only controls for the frozen documentation targets, reports DEVELOPMENT_PLACEHOLDER, and rejects export without files. Region keys are development mappings, not native capability claims. No install steps or native artifact are fabricated.
+The editor uses the accepted canonical `ThemeProject` schema. Visual preview mappings in `src/development-adapters.ts` are illustrative, but `src/native-export.ts` now invokes the actual `@opentheme/adapter-vscode` and `@opentheme/adapter-obsidian` exports. Both produce validatable native file bundles with manual install/remove guidance. Export ZIP paths are checked before packaging; users' installed applications and configuration folders are never modified.
 
-Controller's next integration action: import Gemini's concrete adapters behind this boundary, derive supported controls/mappings from them, call validation/export for the exact target, then present validated files plus their install/remove guidance. Keep illustrative labeling until version-identifiable native tests pass. Never turn the placeholder into a fake exporter.
-
-## Controller-owned dependency change request
-
-No shared source or root config change is needed. The existing workspace globs already include apps/web. Reconcile **root pnpm-lock.yaml** for the exact dependency/devDependency additions in apps/web/package.json using the pinned pnpm **10.34.9**, then run a frozen install and workspace checks in the integration checkout. Do not use this host's fallback pnpm 11.25.0 to regenerate the canonical lockfile. This PR intentionally cannot pass a root frozen workspace install until that controller-owned reconciliation occurs.
+Any claim of compatibility with VS Code 1.144.0 and Obsidian 1.15.0 requires independent native application evidence. The source adapter tests alone do not establish that evidence.
 
 ## Evidence and limits
 
