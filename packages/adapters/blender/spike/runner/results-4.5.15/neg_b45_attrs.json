@@ -1,0 +1,21 @@
+{
+ "blender_version": [
+  4,
+  5,
+  15
+ ],
+ "blender_version_string": "4.5.15 LTS",
+ "build_hash": "5afeabba6097",
+ "checked": {},
+ "factory_startup": true,
+ "loader_warnings": [],
+ "mismatches": [],
+ "operator_result": [
+  "FINISHED"
+ ],
+ "pass": true,
+ "rna_labels": {},
+ "theme_filepath_after": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\b45_only_attributes.xml",
+ "user_config_dir": "<SCRATCH>\\native\\run_4.5.15\\profile_nba",
+ "xml": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\b45_only_attributes.xml"
+}

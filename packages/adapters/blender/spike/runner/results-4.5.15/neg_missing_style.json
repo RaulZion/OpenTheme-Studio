@@ -1,0 +1,22 @@
+{
+ "blender_version": [
+  4,
+  5,
+  15
+ ],
+ "blender_version_string": "4.5.15 LTS",
+ "build_hash": "5afeabba6097",
+ "checked": {},
+ "exception": "RuntimeError: Error: Python: Traceback (most recent call last):\n  File \"<SCRATCH>\\bl\\4.5.15\\blender-4.5.15-windows-x64\\4.5\\scripts\\startup\\bl_operators\\presets.py\", line 312, in execute\n    rna_xml.xml_file_run(context, filepath, preset_xml_map, secure_types=preset_xml_secure_types)\n  File \"<SCRATCH>\\bl\\4.5.15\\blender-4.5.15-windows-x64\\4.5\\scripts\\modules\\rna_xml.py\", line 396, in xml_file_run\n    xml_node = bpy_xml.getElementsByTagName(xml_tag)[0]\n               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\nIndexError: list index out of range\nLocation: <SCRATCH>\\bl\\4.5.15\\blender-4.5.15-windows-x64\\4.5\\scripts\\modules\\bpy\\ops.py:109\n",
+ "factory_startup": true,
+ "loader_warnings": [],
+ "mismatches": [],
+ "operator_result": [
+  "EXCEPTION"
+ ],
+ "pass": false,
+ "rna_labels": {},
+ "theme_filepath_after": "",
+ "user_config_dir": "<SCRATCH>\\native\\run_4.5.15\\profile_nms",
+ "xml": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\missing_themestyle.xml"
+}

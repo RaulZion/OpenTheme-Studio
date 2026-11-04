@@ -38,7 +38,7 @@ ext() {  # name profile extension-subcommand [args...]
   local name="$1" profile="$2"; shift 2
   fresh "$profile"
   "$BLENDER" --background --factory-startup --offline-mode --command extension "$@" > "$OUT/$name.log" 2>&1
-  log "[$name] exit=$? $(grep -E 'ERROR|Error|error|invalid|STATUS|Success|created' "$OUT/$name.log" | tr '\n' ' ')"
+  log "[$name] exit=$? $(grep -E 'ERROR|Error|error|invalid|STATUS|Success|created|installed but not found|expected to be installed' "$OUT/$name.log" | tr '\n' ' ')"
 }
 
 "$BLENDER" --version > "$OUT/blender_version.txt" 2>&1

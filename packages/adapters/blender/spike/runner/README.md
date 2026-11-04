@@ -4,8 +4,8 @@ Second-pass research tooling, same status as the rest of `spike/`: **not the Ble
 
 It adds what `spike/scripts` does not cover: a **4.5-layout** fixture, theme-extension packages pinned with
 `blender_version_min`/`blender_version_max`, negative manifests, a ZIP with unsafe member names, and one script
-that runs all checks against any Blender build, each step in a fresh isolated profile. Use it to clear blocker B1
-once official 4.5.x and 5.0.x builds are available.
+that runs all checks against any Blender build, each step in a fresh isolated profile. It was used to clear blocker B1
+(command-line/background checks) on official 4.5.15 and 5.0.1 builds; GUI checks remain.
 
 ```bash
 BLENDER="/path/to/blender" PYTHON=python packages/adapters/blender/spike/runner/tools/run_native_checks.sh /tmp/ots-blender-<version>
@@ -18,7 +18,7 @@ BLENDER="/path/to/blender" PYTHON=python packages/adapters/blender/spike/runner/
 
 | Path | Purpose |
 |---|---|
-| `fixtures/blender-5.0/`, `fixtures/blender-4.5/` | Same palette in 5.x and 4.5 property layouts + expected read-back values (32 each). |
+| `fixtures/blender-5.0/`, `fixtures/blender-4.5/` | Same palette in 5.x and 4.5 property layouts + expected read-back values (33 for 4.5, 32 for 5.x). |
 | `fixtures/extension-5.0/`, `fixtures/extension-4.5/` | Theme extension sources pinned to `[5.0.0, 5.1.0)` and `[4.5.0, 5.0.0)`. |
 | `fixtures/negative/` | Missing `<ThemeStyle>`; 4.5-only attributes. |
 | `tools/native_check.py` | In Blender: load one XML via the theme preset operator, read back, capture loader warnings. |
@@ -26,4 +26,6 @@ BLENDER="/path/to/blender" PYTHON=python packages/adapters/blender/spike/runner/
 | `tools/read_theme_state.py` | In Blender: active theme file and two sample colors. |
 | `tools/make_negative_packages.py` | Plain Python: bad manifests and an unsafe-member ZIP, written to a new directory only. |
 | `tools/run_native_checks.sh` | Runs everything. |
-| `results-5.2.3/` | Sanitized output from Blender **5.2.3 LTS** (2026-11-04). **4.5 and 5.0: NOT RUN.** |
+| `tools/compare_schemas.py` | Plain Python: diff two schema dumps and check fixture paths/channel counts against a build. |
+| `results-4.5.15/`, `results-5.0.1/`, `results-5.2.3/` | Sanitized output from official **4.5.15 LTS** and **5.0.1** portable builds and the installed **5.2.3 LTS** (2026-11-04). |
+| `schema-diffs/` | Native schema differences 4.5.15 → 5.0.1 and 5.0.1 → 5.2.3. |

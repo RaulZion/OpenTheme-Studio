@@ -1,0 +1,6 @@
+Blender 4.5.15 LTS
+  build date: 2026-10-22
+  build hash: 5afeabba6097
+  build branch: blender-v4.5-release
+source: https://download.blender.org/release/Blender4.5/blender-4.5.15-windows-x64.zip
+sha256: 52dd02fd74877fa08e74b67d7854cf32468a232c02aaa19b6844c91285574f8d (matches the official .sha256 file)

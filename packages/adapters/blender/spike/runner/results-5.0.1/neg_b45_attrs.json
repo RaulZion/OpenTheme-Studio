@@ -1,0 +1,25 @@
+{
+ "blender_version": [
+  5,
+  0,
+  1
+ ],
+ "blender_version_string": "5.0.1",
+ "build_hash": "a3db93c5b259",
+ "checked": {},
+ "factory_startup": true,
+ "loader_warnings": [
+  "ThemeView3D.edge_seam not found",
+  "ThemeView3D.face_dot not found",
+  "ThemeView3D.frame_current not found"
+ ],
+ "mismatches": [],
+ "operator_result": [
+  "FINISHED"
+ ],
+ "pass": false,
+ "rna_labels": {},
+ "theme_filepath_after": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\b45_only_attributes.xml",
+ "user_config_dir": "<SCRATCH>\\native\\run_5.0.1\\profile_nba",
+ "xml": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\negative\\b45_only_attributes.xml"
+}

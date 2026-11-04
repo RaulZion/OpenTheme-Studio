@@ -4,6 +4,7 @@
 - Owner: Claude, branch `research/claude-blender-compat`, base `06eda81c59d46e7ff3abb5977a041ff00e86552c`
 - Status: **research only**. No Blender adapter or exporter exists. Issue #3 keeps Blender out of G1.
 - Spike files: `packages/adapters/blender/spike/` (all of it is **provisional**)
+- **Update (2026-11-04, later the same evening):** with the owner's approval, official **Blender 4.5.15 LTS** and **5.0.1** portable builds were downloaded and run (background mode, isolated profiles). Blocker B1 is cleared for command-line/background checks; GUI checks (B2, B6) are still pending. Results are in **§10**; statements below that say 4.5/5.0 were "not run" predate that.
 
 ## 1. Verdict
 
@@ -136,7 +137,7 @@ The full 5.2.3 LTS color inventory (property paths and arity) is in `packages/ad
 
 ## 9. Addendum — second independent pass (2026-11-04, same build, same isolation)
 
-Additive to §1–§8; nothing above was changed. Tags: **[SRC-4.5]/[SRC-5.0]** = official source on `projects.blender.org`, branches `blender-v4.5-release` / `blender-v5.0-release` (documentary, not runtime proof); **[N-5.2.3]** = run on Blender 5.2.3 LTS with `packages/adapters/blender/spike/runner/tools/run_native_checks.sh`; results in `spike/runner/results-5.2.3/`. Still **no 4.5 or 5.0 run**.
+Additive to §1–§8 (their text is unchanged; only a dated status note was added under the title). Tags: **[SRC-4.5]/[SRC-5.0]** = official source on `projects.blender.org`, branches `blender-v4.5-release` / `blender-v5.0-release` (documentary, not runtime proof); **[N-5.2.3]** = run on Blender 5.2.3 LTS with `packages/adapters/blender/spike/runner/tools/run_native_checks.sh`; results in `spike/runner/results-5.2.3/`. (When §9 was written, 4.5 and 5.0 had not been run; see §10.)
 
 **A. Target-branch source confirms the §3 source facts for 4.5 and 5.0 (not only 5.2).** [SRC-4.5][SRC-5.0]
 - `rna_xml.py` (4.5) and `_rna_xml.py` (5.0) are byte-identical apart from the module rename: unknown attribute → `print("… not found")`; unknown element → silently skipped; collection length mismatch → `Size Mismatch!` and skip.
@@ -162,3 +163,33 @@ Additive to §1–§8; nothing above was changed. Tags: **[SRC-4.5]/[SRC-5.0]** 
 - Structural size of the change, from the two official `Blender_Light.xml` files: 4.5 = 1110 attribute paths, 5.0 = 778, 699 shared, 411 removed (mostly per-editor space colors), 79 added.
 - Syntax keywords: §4 maps them to `syntax_reserved`; the runner fixture uses `syntax_builtin` (UI label "Syntax Built-In"). Both are unverified hypotheses until a GUI check (B2).
 - Runner 5.x fixture: 32/32 values applied exactly on 5.2.3, 0 loader warnings. Runner 4.5-layout fixture on 5.2.3: `FINISHED`, 0 warnings, 6 per-editor panel values silently lost — the expected wrong-version result; it has **not** been run on 4.5.
+
+## 10. Native results on the declared targets — Blender 4.5.15 LTS and 5.0.1
+
+Builds (official portable Windows x64 ZIPs from `download.blender.org/release/`, SHA-256 matched the published `.sha256` files): **4.5.15 LTS** hash `5afeabba6097` (2026-10-22), SHA-256 `52dd02fd…74f8d`; **5.0.1** hash `a3db93c5b259` (2025-12-16), SHA-256 `921d77f6…fe46e`. Run with `spike/runner/tools/run_native_checks.sh`, `--background --factory-startup --offline-mode`, a fresh `BLENDER_USER_RESOURCES` per step (probe: every user path inside scratch). The real `%APPDATA%\Blender Foundation\Blender\{4.5,5.0,5.2}\config\userpref.blend` hashes and the profile's newest write time (17:25) were identical before and after. Each build was run twice with identical results. Sanitized output: `spike/runner/results-4.5.15/`, `results-5.0.1/`, `schema-diffs/`.
+
+| Check | 4.5.15 LTS | 5.0.1 | 5.2.3 LTS (§3, §9) |
+|---|---|---|---|
+| 4.5-layout fixture (33 values) | **pass**: 33/33, 0 warnings | `FINISHED`, 0 warnings, **6 panel values silently lost** | same as 5.0.1 |
+| 5.x-layout fixture (32 values) | `FINISHED`, **5 `not found`** (`panel_*`), those 5 values lost | **pass**: 32/32, 0 warnings | pass 32/32 |
+| Missing `<ThemeStyle>` | `IndexError`, operator fails | `IndexError` | `IndexError` |
+| 4.5-only attributes (`edge_seam`, `face_dot`, `frame_current`) | applied, 0 warnings | 3 `not found`, `FINISHED` | 3 `not found` |
+| Package `[4.5.0, 5.0.0)` install + enable | **installed, active theme after restart** | refused | refused |
+| Package `[5.0.0, 5.1.0)` install + enable | refused | **installed, active theme after restart** | refused |
+| 8 bad manifests (`id`, `name`, `tagline`) | 8/8 rejected | 8/8 rejected | 8/8 rejected |
+| ZIP with `../`, `/`, `sub/../../`, `C:/` members | validates; install rewrites names inside the package | same | same |
+
+Native schema dumps (`rna_theme_schema.py`, every collection item walked):
+
+- **4.5.15 → 5.0.1:** 1114 → 796 properties; 704 shared, **410 removed**, **92 added**; no type or channel-count change on any shared property. Removed: per-editor space colors (dope sheet 44, graph 44, 3D view 38, image 36, clip 35, sequencer 32, NLA 26, node 20, spreadsheet 17, properties 14, and 13 each in console, file browser, info, outliner, preferences, status bar, text editor, top bar). Added: `user_interface` 39, `common` 36, `regions` 11, `view_3d` 5, `node_editor` 1. Secure types: 4.5 has `ThemeAssetShelf`, `ThemePanelColors`; 5.0 adds `ThemeCommon*`, `ThemeRegions*`.
+- **5.0.1 → 5.2.3:** 796 → 803; removed `dopesheet_editor.interpolation_line`; added `dopesheet_editor.anim_interpolation_{constant,linear,other}`, `preferences.match`, `user_interface.link`, `view_3d.gp_wire_edit`, `grid_axis_brightness`, `grid_major`. Secure types identical. This confirms §9 B's source-level comparison.
+- Both runner fixtures match their target schema exactly (every path present, every channel count equal).
+
+Observed differences in the tooling itself:
+- On 4.5.15 and 5.0.1, `extension install-file` prints nothing on success and only "Package should have been installed but not found: <id>" on a version refusal (5.2.3 also prints the version reason). Exit code is 0 in all cases. The runner records a theme-state line after each install; that line, not the exit code, is the proof.
+- 4.5.15 words the hyphen-id error "Not a valid identifier" (5.x: "Not a valid Python identifier"); rule unchanged.
+
+What this proves and what it does not:
+- **Proven on the exact declared targets (background mode):** a sparse, version-specific XML applies exactly through Blender's own theme preset operator; version-pinned theme extensions install, apply and persist on their own version and are refused by the other; cross-version files "succeed" while dropping values, silently for 4.5 → 5.x panel colors.
+- **Not proven:** that the mapped roles *look* right (GUI screenshots, B2); selecting an extension theme from the GUI menu (B6); macOS/Linux builds; 4.5.x or 5.0.x builds other than 4.5.15 and 5.0.1; light palettes; the keyword syntax-role mapping (`syntax_reserved` vs `syntax_builtin`).
+- Recommendation unchanged: one mapper and one generated schema per exact version, extension packages pinned to `[X.Y.0, X.(Y+1).0)`, and a gate that requires full read-back with zero loader warnings. Target choice for the 5.x line (5.0.1 vs 5.2 LTS) remains the controller's decision (C2).
