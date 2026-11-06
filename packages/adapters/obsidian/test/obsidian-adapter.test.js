@@ -95,7 +95,7 @@ test('obsidianAdapter: export succeeds and produces offline native theme files',
   const manifestFile = result.files.find((f) => f.path === 'manifest.json');
   assert.ok(manifestFile);
   const manifest = JSON.parse(/** @type {string} */ (manifestFile.content));
-  assert.equal(manifest.name, sampleProject.name);
+  assert.equal(manifest.name, sampleProject.projectId);
   assert.equal(manifest.version, '1.0.0');
   assert.equal(manifest.minAppVersion, OBSIDIAN_SUPPORTED_VERSION);
 
@@ -118,6 +118,7 @@ test('obsidianAdapter: export succeeds and produces offline native theme files',
   assert.ok(result.installSteps.length >= 4);
   assert.ok(result.removeSteps.length >= 2);
   assert.ok(result.installSteps.some((s) => s.includes('.obsidian/themes/')));
+  assert.ok(result.installSteps.some((s) => s.includes('select "' + manifest.name + '"')));
 });
 
 test('obsidianAdapter: export returns no partial files when validation fails', async () => {
