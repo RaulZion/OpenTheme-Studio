@@ -24,7 +24,8 @@ describe('G1 native export bridge', () => {
     } else {
       const manifest = JSON.parse(strFromU8(unzipped['midnight-sea/manifest.json']));
       const css = strFromU8(unzipped['midnight-sea/theme.css']);
-      expect(manifest.name).toBe(project.name);
+      expect(manifest.name).toBe(project.projectId);
+      expect(Object.keys(unzipped).every(path => path.startsWith(manifest.name + '/'))).toBe(true);
       expect(css).toContain('--background-primary: ' + project.tokens.canvas);
       expect(css).not.toMatch(/@import|url\s*\(/i);
     }
