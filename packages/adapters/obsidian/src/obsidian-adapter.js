@@ -344,7 +344,9 @@ export function buildObsidianThemeCss(project) {
  */
 export function buildObsidianManifestJson(project) {
   return {
-    name: project.name,
+    // The Obsidian theme directory must exactly match manifest.name.
+    // Use schema-validated projectId rather than a free-text display name.
+    name: project.projectId,
     version: '1.0.0',
     minAppVersion: OBSIDIAN_SUPPORTED_VERSION,
     author: 'OpenTheme Studio',
@@ -373,7 +375,7 @@ This theme was exported natively from OpenTheme Studio for Obsidian (${OBSIDIAN_
 5. In Obsidian:
    - Go to **Settings > Appearance > Themes**
    - Click the reload icon next to Themes if needed
-   - Select **${project.name}**
+   - Select **${project.projectId}** (the safe installed theme ID).
 
 ## Uninstallation / Removal
 
@@ -441,7 +443,7 @@ export const obsidianAdapter = {
       `2. Navigate to ".obsidian/themes/" (create the "themes" directory if it does not exist).`,
       `3. Create a folder named "${project.projectId}" inside ".obsidian/themes/".`,
       `4. Copy "manifest.json" and "theme.css" into ".obsidian/themes/${project.projectId}/".`,
-      `5. In Obsidian, open Settings -> Appearance -> Themes, and select "${project.name}".`,
+      `5. In Obsidian, open Settings -> Appearance -> Themes, and select "${project.projectId}" (the installed theme ID).`,
     ];
 
     const removeSteps = [
