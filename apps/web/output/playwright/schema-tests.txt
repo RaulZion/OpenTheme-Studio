@@ -1,0 +1,8 @@
+test_reject_invalid_inputs (test_schema.ContractTests.test_reject_invalid_inputs) ... ok
+test_starter_fixture_is_valid (test_schema.ContractTests.test_starter_fixture_is_valid) ... ok
+test_target_matrix_has_unique_versions_and_official_sources (test_schema.ContractTests.test_target_matrix_has_unique_versions_and_official_sources) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.027s
+
+OK

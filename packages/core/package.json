@@ -1,0 +1,17 @@
+{
+  "name": "@opentheme/core",
+  "version": "0.1.0",
+  "description": "Pure typed core for OpenTheme Studio project schema, colors, and adapter registry",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@opentheme/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "@opentheme/core": "workspace:*",
+    "@opentheme/adapter-vscode": "workspace:*",
+    "@opentheme/adapter-obsidian": "workspace:*",
+    "ajv": "8.17.1",
+    "lucide-react": "0.468.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "fflate": "0.8.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "jsdom": "27.2.0",
+    "typescript": "5.9.3",
+    "vite": "7.2.2",
+    "vitest": "4.0.8"
+  }
+}
