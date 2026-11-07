@@ -1,0 +1,52 @@
+{
+  "name": "opentheme-vscode-connector",
+  "displayName": "OpenTheme Studio Live Sync",
+  "description": "First-party local desktop companion extension for OpenTheme Studio live color synchronization",
+  "version": "1.0.0",
+  "publisher": "opentheme-studio",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RaulZion/OpenTheme-Studio.git"
+  },
+  "type": "module",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes",
+    "Other"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onCommand:opentheme.enableLiveSync"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "opentheme.enableLiveSync",
+        "title": "Enable Live Sync",
+        "category": "OpenTheme Studio"
+      },
+      {
+        "command": "opentheme.regenerateCode",
+        "title": "Regenerate Pairing Code",
+        "category": "OpenTheme Studio"
+      },
+      {
+        "command": "opentheme.restoreColors",
+        "title": "Restore Original Colors",
+        "category": "OpenTheme Studio"
+      },
+      {
+        "command": "opentheme.disconnect",
+        "title": "Disconnect Live Sync",
+        "category": "OpenTheme Studio"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  }
+}

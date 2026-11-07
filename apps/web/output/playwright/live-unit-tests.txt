@@ -1,0 +1,13 @@
+
+> @opentheme/web@0.1.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v4.0.8 C:/Users/micci/.codex/ots-ui-g1/apps/web
+
+···························································
+
+ Test Files  8 passed (8)
+      Tests  59 passed (59)
+   Start at  16:29:30
+   Duration  27.58s (transform 310ms, setup 5.21s, collect 1.97s, tests 7.10s, environment 11.23s, prepare 140ms)

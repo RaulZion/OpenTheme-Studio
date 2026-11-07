@@ -1,0 +1,30 @@
+
+> @opentheme/web@0.1.0 test:browser
+> playwright test
+
+[WebServer] (node:35508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:30652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\editor.spec.ts:15:1 › desktop visual selection, shared colors, isolated overrides, keyboard history, exact download/import (2.5s)
+  ok  2 tests\editor.spec.ts:112:1 › export disclosure, dialog focus loop and light studio appearance (1.7s)
+  ok  3 tests\editor.spec.ts:165:1 › narrow viewport panels, keyboard selection and app override reset (1.2s)
+  ok  4 tests\editor.spec.ts:215:1 › cached shell continues editing after network is offline (877ms)
+  ok  5 tests\live.spec.ts:32:1 › VS Code authenticates once, then debounces edit/undo/redo/palette/import with no download (3.4s)
+  ok  6 tests\live.spec.ts:151:1 › health alone does not connect; disconnect cancels pending auto-apply (1.6s)
+  ok  7 tests\live.spec.ts:208:3 › HTTP 401 produces a visible pairing error, never Connected (837ms)
+  ok  8 tests\live.spec.ts:208:3 › HTTP 403 produces a visible pairing error, never Connected (836ms)
+  ok  9 tests\live.spec.ts:208:3 › HTTP 422 produces a visible pairing error, never Connected (816ms)
+  ok 10 tests\live.spec.ts:238:1 › no companion and wrong protocol fail closed without blocking edits (1.0s)
+  ok 11 tests\live.spec.ts:265:1 › a failed established session can explicitly forget its pairing code (1.2s)
+  ok 12 tests\live.spec.ts:370:1 › Obsidian gesture writes real browser sandbox CSS, auto-updates and cleans only an owned snippet (2.3s)
+  ok 13 tests\live.spec.ts:424:1 › Obsidian foreign ownership and revoked browser permission never become a successful update (1.5s)
+
+  13 passed (24.8s)
