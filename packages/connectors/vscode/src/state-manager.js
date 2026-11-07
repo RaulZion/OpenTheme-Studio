@@ -7,6 +7,8 @@
 import { randomBytes } from 'node:crypto';
 import { mapWorkbenchColors, mapTokenColors } from './color-mapper.js';
 
+const TRACKING_KEY = 'opentheme.live.lastApplied.v1';
+
 export class StateManager {
   /**
    * @param {object} [options]
@@ -30,7 +32,30 @@ export class StateManager {
     /** @type {Record<string, unknown> | null} */
     this.lastAppliedTokenColors = null;
 
+    // VS Code globalState persists across extension-host restarts. Persisting
+    // the original values is required for safe restoration after reconnect.
+    const saved = this.storage?.get?.(TRACKING_KEY);
+    if (saved && saved.version === 1 &&
+        ['originalWorkbenchColors', 'originalTokenColors', 'lastAppliedWorkbenchColors', 'lastAppliedTokenColors']
+          .every(key => saved[key] && typeof saved[key] === 'object' && !Array.isArray(saved[key]))) {
+      this.originalWorkbenchColors = saved.originalWorkbenchColors;
+      this.originalTokenColors = saved.originalTokenColors;
+      this.lastAppliedWorkbenchColors = saved.lastAppliedWorkbenchColors;
+      this.lastAppliedTokenColors = saved.lastAppliedTokenColors;
+    }
+
     this.regeneratePairingCode();
+  }
+
+  async persistTracking() {
+    if (!this.storage?.update) return;
+    await this.storage.update(TRACKING_KEY, {
+      version: 1,
+      originalWorkbenchColors: this.originalWorkbenchColors,
+      originalTokenColors: this.originalTokenColors,
+      lastAppliedWorkbenchColors: this.lastAppliedWorkbenchColors,
+      lastAppliedTokenColors: this.lastAppliedTokenColors,
+    });
   }
 
   /**
@@ -155,11 +180,14 @@ export class StateManager {
     const mergedWorkbench = { ...currentWorkbench, ...targetWorkbench };
     const mergedToken = { ...currentToken, ...targetToken };
 
-    await this.updateWorkbenchColors(mergedWorkbench);
-    await this.updateTokenColors(mergedToken);
-
+    // Persist the intended last-written values BEFORE mutating native settings
+    // so a host crash after either update remains safely recoverable.
     this.lastAppliedWorkbenchColors = { ...targetWorkbench };
     this.lastAppliedTokenColors = { ...targetToken };
+    await this.persistTracking();
+
+    await this.updateWorkbenchColors(mergedWorkbench);
+    await this.updateTokenColors(mergedToken);
 
     const appliedCount = Object.keys(targetWorkbench).length + Object.keys(targetToken).length;
     return { appliedCount };
@@ -171,6 +199,9 @@ export class StateManager {
    * @returns {Promise<{ ok: boolean, restoredCount: number }>}
    */
   async restoreOriginalColors() {
+    if (!this.lastAppliedWorkbenchColors && !this.lastAppliedTokenColors) {
+      return { ok: true, restoredCount: 0 };
+    }
     let restoredCount = 0;
 
     const currentWorkbench = await this.getWorkbenchColors();
@@ -216,6 +247,9 @@ export class StateManager {
 
     await this.updateWorkbenchColors(nextWorkbench);
     await this.updateTokenColors(nextToken);
+
+    // Clear persistent recovery data only once both native settings restore.
+    if (this.storage?.update) await this.storage.update(TRACKING_KEY, undefined);
 
     // Reset applied tracking
     this.lastAppliedWorkbenchColors = null;
