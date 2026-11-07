@@ -70,6 +70,7 @@ test('export disclosure, dialog focus loop and light studio appearance', async (
   await page.getByRole('button', { name: 'Use light studio appearance' }).click();
   await expect(page.getByTestId('studio')).toHaveAttribute('data-appearance', 'light');
   await page.screenshot({ path: 'output/playwright/desktop-light.png', fullPage: true });
+  await page.getByText('Share / advanced', { exact: true }).click();
   const trigger = page.getByRole('button', { name: 'Export theme' });
   await trigger.click();
   const dialog = page.getByRole('dialog', { name: 'Export your theme' });

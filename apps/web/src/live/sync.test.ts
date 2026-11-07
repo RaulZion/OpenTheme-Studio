@@ -1,0 +1,51 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { starter } from '../presets';
+import { LiveSync } from './sync';
+
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
+it('debounces the latest full document at 300ms, including an undo to the original', async () => {
+  const apply = vi.fn().mockResolvedValue({ message: 'acknowledged' });
+  const publish = vi.fn();
+  const sync = new LiveSync(publish);
+  sync.connected({ apply }, { message: 'paired' });
+  sync.edit({ ...starter, name: 'first' });
+  await vi.advanceTimersByTimeAsync(150);
+  sync.edit(starter);
+  await vi.advanceTimersByTimeAsync(299);
+  expect(apply).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(1);
+  expect(apply).toHaveBeenCalledExactlyOnceWith(starter, expect.any(AbortSignal));
+  expect(publish).toHaveBeenLastCalledWith(expect.objectContaining({ phase: 'connected', message: 'acknowledged' }));
+});
+it('serializes writes and never acknowledges stale work as the latest applied state', async () => {
+  let finish!: (value: { message: string }) => void;
+  const apply = vi.fn().mockImplementationOnce(() => new Promise(resolve => { finish = resolve; })).mockResolvedValue({ message: 'latest' });
+  const publish = vi.fn();
+  const sync = new LiveSync(publish);
+  sync.connected({ apply }, { message: 'paired' });
+  sync.edit({ ...starter, name: 'old' });
+  await vi.advanceTimersByTimeAsync(300);
+  sync.edit({ ...starter, name: 'latest' });
+  await vi.advanceTimersByTimeAsync(300);
+  expect(apply).toHaveBeenCalledTimes(1);
+  finish({ message: 'old' });
+  await vi.advanceTimersByTimeAsync(0);
+  expect(apply).toHaveBeenCalledTimes(2);
+  expect(publish.mock.calls.some(([state]) => state.phase === 'connected' && state.message === 'old')).toBe(false);
+  expect(publish).toHaveBeenLastCalledWith(expect.objectContaining({ phase: 'connected', message: 'latest' }));
+});
+it('stops pending work on disconnect and pauses after a failed write', async () => {
+  const apply = vi.fn().mockRejectedValue(new Error('Permission revoked'));
+  const publish = vi.fn();
+  const sync = new LiveSync(publish);
+  sync.connected({ apply }, { message: 'paired' });
+  sync.edit(starter); sync.disconnect();
+  await vi.advanceTimersByTimeAsync(500);
+  expect(apply).not.toHaveBeenCalled();
+  sync.connected({ apply }, { message: 'paired' }); sync.edit(starter);
+  await vi.advanceTimersByTimeAsync(300);
+  expect(publish).toHaveBeenLastCalledWith(expect.objectContaining({ phase: 'error', message: 'Permission revoked' }));
+  sync.edit(starter); await vi.advanceTimersByTimeAsync(500);
+  expect(apply).toHaveBeenCalledTimes(1);
+});

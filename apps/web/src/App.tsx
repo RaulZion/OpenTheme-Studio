@@ -8,6 +8,7 @@ import { presets, starter } from './presets';
 import Inspector from './Inspector';
 import Preview from './Preview';
 import { ExportDialog, HelpDialog } from './Dialogs';
+import LiveConnections from './live/LiveConnections';
 
 const STORAGE_KEY = 'opentheme.project.v1';
 function loadProject() {
@@ -40,6 +41,7 @@ export default function App() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [importing, setImporting] = useState(false);
   const importInput = useRef<HTMLInputElement>(null);
+  const exportTrigger = useRef<HTMLButtonElement>(null);
   const baseline = useRef(initial.project);
   const region = regions.find(item => item.role === selected)!;
   const controls = developmentAdapter(app).getControls(project, targetVersion(app));
@@ -106,8 +108,9 @@ export default function App() {
       <div className="header-right"><span className="local-badge"><span className="tiny-dot" /> LOCAL FIRST</span><button className="icon-button" aria-label={`Use ${appearance === 'dark' ? 'light' : 'dark'} studio appearance`} title="Toggle studio appearance" onClick={() => setAppearance(value => value === 'dark' ? 'light' : 'dark')}>{appearance === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button><button className="icon-button" aria-label="Editor help" onClick={() => setDialog('help')}><CircleHelp size={18} /></button></div>
     </header>
     <div className="project-toolbar"><div className="project-meta"><span className="project-avatar"><Sparkles size={17} /></span><div><ProjectName name={project.name} onChange={name => update({ ...project, name })} /><span className={`save-status ${!stored ? 'storage-warning' : ''}`}><span className="tiny-dot" />{stored ? 'Saved in this browser' : 'Memory only · download a backup'}</span></div></div>
-      <div className="project-actions"><div className="history-actions"><button className="icon-button" aria-label="Undo" title="Undo · Ctrl/⌘ Z" disabled={!history.past.length} onClick={() => { setHistory(undo); setComparing(false); }}><Undo2 size={17} /></button><button className="icon-button" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" disabled={!history.future.length} onClick={() => { setHistory(redo); setComparing(false); }}><Redo2 size={17} /></button></div><button className="toolbar-button" disabled={importing} onClick={() => importInput.current?.click()}><ArrowUpFromLine size={15} /><span>{importing ? 'Importing…' : 'Import'}</span></button><input ref={importInput} className="visually-hidden" type="file" accept=".json,application/json" aria-label="Import project JSON" tabIndex={-1} disabled={importing} onChange={event => void importProject(event.target.files?.[0])} /><button className="toolbar-button" onClick={saveProject}><ArrowDownToLine size={15} /><span>Save project</span></button><button className="primary-button" aria-label="Export theme" onClick={() => setDialog('export')}>Export theme<ArrowRight size={15} /></button></div>
+      <div className="project-actions"><div className="history-actions"><button className="icon-button" aria-label="Undo" title="Undo · Ctrl/⌘ Z" disabled={!history.past.length} onClick={() => { setHistory(undo); setComparing(false); }}><Undo2 size={17} /></button><button className="icon-button" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" disabled={!history.future.length} onClick={() => { setHistory(redo); setComparing(false); }}><Redo2 size={17} /></button></div><button className="toolbar-button" disabled={importing} onClick={() => importInput.current?.click()}><ArrowUpFromLine size={15} /><span>{importing ? 'Importing…' : 'Import'}</span></button><input ref={importInput} className="visually-hidden" type="file" accept=".json,application/json" aria-label="Import project JSON" tabIndex={-1} disabled={importing} onChange={event => void importProject(event.target.files?.[0])} /><button className="toolbar-button" onClick={saveProject}><ArrowDownToLine size={15} /><span>Save project</span></button><details className="share-menu"><summary>Share / advanced<ChevronDown size={13} /></summary><button ref={exportTrigger} className="toolbar-button" aria-label="Export theme" onClick={() => setDialog('export')}>Export theme ZIP<ArrowRight size={15} /></button></details></div>
     </div>
+    <LiveConnections project={project} />
     <div className="mobile-panels"><button aria-expanded={navigationOpen} aria-controls="navigation-panel" onClick={() => setNavigationOpen(value => !value)}><Menu size={16} /> Applications & palette</button><button aria-expanded={inspectorOpen} aria-controls="inspector-panel" onClick={() => setInspectorOpen(value => !value)}><PanelRight size={16} /> Inspector</button></div>
     <div className={`editor-layout ${navigationOpen ? 'navigation-open' : ''} ${inspectorOpen ? 'inspector-open' : ''}`}>
       <nav className="navigation" id="navigation-panel" aria-label="Applications and palette">
@@ -133,7 +136,7 @@ export default function App() {
     </div>
     <footer className="studio-footer"><span><span className="tiny-dot" /> DEVELOPMENT PREVIEW</span><span>Made for a more personal workspace.</span><span>Project schema 1.0.0</span></footer>
     {notice && <div className={`notice ${error ? 'notice-error' : ''}`} role={error ? 'alert' : 'status'}>{error ? <CircleHelp size={17} /> : <Check size={17} />}<span>{notice}</span><button aria-label="Dismiss notification" className="icon-button" onClick={() => setNotice('')}><X size={15} /></button></div>}
-    {dialog === 'export' && <ExportDialog project={project} app={app} onClose={() => { setDialog(null); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('button[aria-label="Export theme"]')?.focus()); }} onSave={saveProject} />}
+    {dialog === 'export' && <ExportDialog project={project} app={app} onClose={() => { const trigger = exportTrigger.current; setDialog(null); requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus(); }); }} onSave={saveProject} />}
     {dialog === 'help' && <HelpDialog onClose={() => setDialog(null)} />}
   </div>;
 }

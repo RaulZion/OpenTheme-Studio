@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import sample from '../../../contracts/sample.theme.json';
 import App from './App';
@@ -77,6 +77,7 @@ describe('visual editor', () => {
   it('offers native ZIP export, labels unverified installation, and restores dialog focus', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await user.click(screen.getByText('Share / advanced'));
     const trigger = screen.getByRole('button', { name: 'Export theme' });
     await user.click(trigger);
     const dialog = screen.getByRole('dialog', { name: 'Export your theme' });
@@ -86,6 +87,23 @@ describe('visual editor', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
+  });
+  it('does not steal focus from a new editor when an old export callback runs after unmount', async () => {
+    const user = userEvent.setup();
+    let scheduled: FrameRequestCallback | undefined;
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { scheduled = callback; return 1; });
+    const previous = render(<App />);
+    await user.click(screen.getByText('Share / advanced'));
+    await user.click(screen.getByRole('button', { name: 'Export theme' }));
+    await user.click(screen.getByRole('button', { name: 'Close dialog' }));
+    expect(scheduled).toBeDefined();
+    previous.unmount();
+    render(<App />);
+    const name = screen.getByLabelText('Project name');
+    await user.clear(name);
+    act(() => scheduled!(0));
+    await user.type(name, 'Renamed');
+    expect(name).toHaveValue('Renamed');
   });
   it('uses project shortcuts outside inputs while retaining text-field undo', async () => {
     const user = userEvent.setup();
