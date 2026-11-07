@@ -119,3 +119,39 @@ test('StateManager: restoreOriginalColors safely restores original state and pre
   // Keys that did not exist before apply should be removed
   assert.equal(restoredWorkbench['focusBorder'], undefined);
 });
+
+test('StateManager: saved recovery snapshot survives extension restart and preserves manual edits', async () => {
+  const mockConfig = new MockConfigProvider({
+    'workbench.colorCustomizations': { 'editor.background': '#000000', 'unrelated.color': '#334455' },
+    'editor.tokenColorCustomizations': { 'unrelatedToken': '#667788' },
+  });
+  const data = new Map();
+  const storage = {
+    get(key) { return data.get(key); },
+    async update(key, value) {
+      if (value === undefined) data.delete(key);
+      else data.set(key, structuredClone(value));
+    },
+  };
+  const first = new StateManager({ configProvider: mockConfig, storage });
+  await first.applyTheme(sampleProject);
+  assert.ok(data.size > 0, 'original values must be persisted before applying');
+  const restarted = new StateManager({ configProvider: mockConfig, storage });
+  assert.notEqual(first.getPairingCode(), restarted.getPairingCode(), 'pairing token is never persisted');
+
+  const manuallyEdited = await mockConfig.get('workbench.colorCustomizations');
+  manuallyEdited['statusBar.background'] = '#ABCDEF';
+  await mockConfig.update('workbench.colorCustomizations', manuallyEdited);
+
+  const result = await restarted.restoreOriginalColors();
+  assert.ok(result.restoredCount > 0);
+  const restored = await mockConfig.get('workbench.colorCustomizations');
+  assert.equal(restored['editor.background'], '#000000');
+  assert.equal(restored['unrelated.color'], '#334455');
+  assert.equal(restored['statusBar.background'], '#ABCDEF', 'preserve a manual user edit');
+  assert.equal(data.size, 0, 'successful restore clears persisted snapshot');
+
+  const noOp = await new StateManager({ configProvider: mockConfig, storage }).restoreOriginalColors();
+  assert.equal(noOp.restoredCount, 0);
+  assert.equal((await mockConfig.get('workbench.colorCustomizations'))['statusBar.background'], '#ABCDEF');
+});
