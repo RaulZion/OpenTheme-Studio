@@ -1,0 +1,42 @@
+{
+ "a": "5.0.1",
+ "b": "5.2.3 LTS",
+ "count_a": 796,
+ "count_b": 803,
+ "shared": 795,
+ "only_a": [
+  "theme.dopesheet_editor.interpolation_line"
+ ],
+ "only_b": [
+  "theme.dopesheet_editor.anim_interpolation_constant",
+  "theme.dopesheet_editor.anim_interpolation_linear",
+  "theme.dopesheet_editor.anim_interpolation_other",
+  "theme.preferences.match",
+  "theme.user_interface.link",
+  "theme.view_3d.gp_wire_edit",
+  "theme.view_3d.grid_axis_brightness",
+  "theme.view_3d.grid_major"
+ ],
+ "type_or_channels_changed": [],
+ "secure_types_only_a": [],
+ "secure_types_only_b": [],
+ "fixtures_vs_b": {
+  "ots_midnight_sea_b45.expect.json": {
+   "paths": 33,
+   "missing_in_b": [
+    "view_3d.space.panelcolors.header",
+    "view_3d.space.panelcolors.back",
+    "properties.space.panelcolors.header",
+    "properties.space.panelcolors.back",
+    "text_editor.space.panelcolors.header",
+    "text_editor.space.panelcolors.back"
+   ],
+   "channel_mismatch_in_b": []
+  },
+  "ots_midnight_sea_b50.expect.json": {
+   "paths": 32,
+   "missing_in_b": [],
+   "channel_mismatch_in_b": []
+  }
+ }
+}

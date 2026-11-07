@@ -1,0 +1,279 @@
+{
+ "blender_version": [
+  5,
+  0,
+  1
+ ],
+ "blender_version_string": "5.0.1",
+ "build_hash": "a3db93c5b259",
+ "checked": {
+  "text_editor.cursor": "#91b1f1",
+  "text_editor.line_numbers": "#acbbcb",
+  "text_editor.selected_text": "#48698f",
+  "text_editor.space.back": "#171c25",
+  "text_editor.space.header": "#202734ff",
+  "text_editor.space.header_text": "#f1f3f5",
+  "text_editor.space.text": "#f1f3f5",
+  "text_editor.syntax_builtin": "#bd9de8",
+  "text_editor.syntax_comment": "#9aaabc",
+  "text_editor.syntax_numbers": "#e1bd79",
+  "text_editor.syntax_special": "#91b1f1",
+  "text_editor.syntax_string": "#8cc9ad",
+  "user_interface.editor_border": "#495568",
+  "user_interface.panel_back": "#202734ff",
+  "user_interface.panel_header": "#303a4bff",
+  "user_interface.panel_outline": "#495568ff",
+  "user_interface.panel_text": "#f1f3f5",
+  "user_interface.panel_title": "#f1f3f5",
+  "user_interface.wcol_regular.inner": "#303a4bff",
+  "user_interface.wcol_regular.inner_sel": "#91b1f1ff",
+  "user_interface.wcol_regular.item": "#91b1f1ff",
+  "user_interface.wcol_regular.outline": "#495568ff",
+  "user_interface.wcol_regular.text": "#f1f3f5",
+  "user_interface.wcol_regular.text_sel": "#101723",
+  "user_interface.wcol_state.error": "#ec8b99ff",
+  "user_interface.wcol_state.info": "#91b1f1ff",
+  "user_interface.wcol_state.success": "#8cc9adff",
+  "user_interface.wcol_state.warning": "#e1bd79ff",
+  "user_interface.widget_text_cursor": "#91b1f1",
+  "view_3d.space.gradients.background_type": "SINGLE_COLOR",
+  "view_3d.space.gradients.gradient": "#171c25",
+  "view_3d.space.gradients.high_gradient": "#171c25"
+ },
+ "factory_startup": true,
+ "loader_warnings": [],
+ "mismatches": [],
+ "operator_result": [
+  "FINISHED"
+ ],
+ "pass": true,
+ "rna_labels": {
+  "text_editor.cursor": {
+   "array_length": 3,
+   "description": "",
+   "name": "Cursor",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.line_numbers": {
+   "array_length": 3,
+   "description": "",
+   "name": "Line Numbers",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.selected_text": {
+   "array_length": 3,
+   "description": "",
+   "name": "Selected Text",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.space.back": {
+   "array_length": 3,
+   "description": "",
+   "name": "Window Background",
+   "rna_struct": "ThemeSpaceGeneric",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.space.header": {
+   "array_length": 4,
+   "description": "",
+   "name": "Header",
+   "rna_struct": "ThemeSpaceGeneric",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.space.header_text": {
+   "array_length": 3,
+   "description": "",
+   "name": "Header Text",
+   "rna_struct": "ThemeSpaceGeneric",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.space.text": {
+   "array_length": 3,
+   "description": "",
+   "name": "Text",
+   "rna_struct": "ThemeSpaceGeneric",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.syntax_builtin": {
+   "array_length": 3,
+   "description": "",
+   "name": "Syntax Built-In",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.syntax_comment": {
+   "array_length": 3,
+   "description": "",
+   "name": "Syntax Comment",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.syntax_numbers": {
+   "array_length": 3,
+   "description": "",
+   "name": "Syntax Numbers",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.syntax_special": {
+   "array_length": 3,
+   "description": "",
+   "name": "Syntax Special",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "text_editor.syntax_string": {
+   "array_length": 3,
+   "description": "",
+   "name": "Syntax String",
+   "rna_struct": "ThemeTextEditor",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.editor_border": {
+   "array_length": 3,
+   "description": "Color of the border between editors",
+   "name": "Editor Border",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.panel_back": {
+   "array_length": 4,
+   "description": "",
+   "name": "Panel Background",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.panel_header": {
+   "array_length": 4,
+   "description": "",
+   "name": "Panel Header",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.panel_outline": {
+   "array_length": 4,
+   "description": "Color of the outline of top-level panels",
+   "name": "Panel Outline",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.panel_text": {
+   "array_length": 3,
+   "description": "",
+   "name": "Panel Text",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.panel_title": {
+   "array_length": 3,
+   "description": "",
+   "name": "Panel Title",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.inner": {
+   "array_length": 4,
+   "description": "",
+   "name": "Inner",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.inner_sel": {
+   "array_length": 4,
+   "description": "",
+   "name": "Inner Selected",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.item": {
+   "array_length": 4,
+   "description": "",
+   "name": "Item",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.outline": {
+   "array_length": 4,
+   "description": "",
+   "name": "Outline",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.text": {
+   "array_length": 3,
+   "description": "",
+   "name": "Text",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_regular.text_sel": {
+   "array_length": 3,
+   "description": "",
+   "name": "Text Selected",
+   "rna_struct": "ThemeWidgetColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_state.error": {
+   "array_length": 4,
+   "description": "Color for error items",
+   "name": "Error",
+   "rna_struct": "ThemeWidgetStateColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_state.info": {
+   "array_length": 4,
+   "description": "Color for informational items",
+   "name": "Info",
+   "rna_struct": "ThemeWidgetStateColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_state.success": {
+   "array_length": 4,
+   "description": "Color for successful items",
+   "name": "Success",
+   "rna_struct": "ThemeWidgetStateColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.wcol_state.warning": {
+   "array_length": 4,
+   "description": "Color for warning items",
+   "name": "Warning",
+   "rna_struct": "ThemeWidgetStateColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "user_interface.widget_text_cursor": {
+   "array_length": 3,
+   "description": "Color of the text insertion cursor (caret)",
+   "name": "Text Cursor",
+   "rna_struct": "ThemeUserInterface",
+   "subtype": "COLOR_GAMMA"
+  },
+  "view_3d.space.gradients.background_type": {
+   "array_length": 0,
+   "description": "Type of background in the 3D viewport",
+   "name": "Background Type",
+   "rna_struct": "ThemeGradientColors",
+   "subtype": "NONE"
+  },
+  "view_3d.space.gradients.gradient": {
+   "array_length": 3,
+   "description": "",
+   "name": "Gradient Low",
+   "rna_struct": "ThemeGradientColors",
+   "subtype": "COLOR_GAMMA"
+  },
+  "view_3d.space.gradients.high_gradient": {
+   "array_length": 3,
+   "description": "",
+   "name": "Gradient High/Off",
+   "rna_struct": "ThemeGradientColors",
+   "subtype": "COLOR_GAMMA"
+  }
+ },
+ "theme_filepath_after": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\blender-5.0\\ots_midnight_sea_b50.xml",
+ "user_config_dir": "<SCRATCH>\\native\\run_5.0.1\\profile_c50",
+ "xml": "<REPO>\\packages\\adapters\\blender\\spike\\runner\\fixtures\\blender-5.0\\ots_midnight_sea_b50.xml"
+}

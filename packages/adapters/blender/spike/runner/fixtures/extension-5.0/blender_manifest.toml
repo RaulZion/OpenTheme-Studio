@@ -1,0 +1,16 @@
+schema_version = "1.0.0"
+
+# PROVISIONAL OpenTheme Studio research fixture (OTS-121). Not an adapter output.
+id = "ots_midnight_sea_b50"
+version = "0.0.1"
+name = "Midnight Sea OTS 5.0 provisional"
+tagline = "Provisional OpenTheme Studio research fixture for Blender 5.0"
+maintainer = "OpenTheme Studio contributors"
+type = "theme"
+
+blender_version_min = "5.0.0"
+blender_version_max = "5.1.0"
+
+license = [
+  "SPDX:MIT",
+]

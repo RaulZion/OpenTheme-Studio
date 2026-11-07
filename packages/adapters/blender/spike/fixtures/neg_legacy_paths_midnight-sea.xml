@@ -1,0 +1,28 @@
+<bpy>
+  <Theme>
+    <user_interface>
+      <ThemeUserInterface
+        opentheme_not_a_property="#ff00ffff"
+        panel_back="#303a4bff"
+        panel_header="#202734ff"
+        >
+      </ThemeUserInterface>
+    </user_interface>
+    <view_3d>
+      <ThemeView3D>
+        <space>
+          <ThemeSpaceGradient>
+            <panelcolors>
+              <ThemePanelColors
+                back="#303A4Bff"
+                >
+              </ThemePanelColors>
+            </panelcolors>
+          </ThemeSpaceGradient>
+        </space>
+      </ThemeView3D>
+    </view_3d>
+  </Theme>
+  <ThemeStyle>
+  </ThemeStyle>
+</bpy>

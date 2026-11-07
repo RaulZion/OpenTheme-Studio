@@ -1,0 +1,40 @@
+{
+ "version": "5.2.3 LTS",
+ "A_valid_5x": {
+  "op_result": [
+   "FINISHED"
+  ],
+  "readback_ok": 20,
+  "readback_total": 20,
+  "mismatches": [],
+  "unmapped_kept_default_axis_x": true
+ },
+ "neg_legacy_paths_midnight-sea.xml": {
+  "op_result": [
+   "FINISHED"
+  ],
+  "panel_back_after": "#303a4bff",
+  "panel_back_default": "#3d3d3dff"
+ },
+ "neg_no_themestyle_midnight-sea.xml": {
+  "op_result": "EXCEPTION",
+  "error": "RuntimeError('Error: Python: Traceback (most recent call last):\\n  File \"C:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Blender\\\\5.2\\\\scripts\\\\startup\\\\bl_operators\\\\presets.py\", line 312, in execute\\n    rna_xml.xml_file_run(context, filepath, preset_xml_map, secure_types=preset_xml_secure_type",
+  "panel_back_after": "#303a4bff",
+  "panel_back_default": "#3d3d3dff"
+ },
+ "neg_wrong_arity_midnight-sea.xml": {
+  "op_result": [
+   "FINISHED"
+  ],
+  "panel_back_after": "#303a4bff",
+  "panel_back_default": "#3d3d3dff"
+ },
+ "install_op": [
+  "FINISHED"
+ ],
+ "installed_presets": [
+  "opentheme_midnight-sea.blender-5x.provisional.xml"
+ ],
+ "install_readback_panel_back": "#303a4bff",
+ "theme_filepath_after_install": "opentheme_midnight-sea.blender-5x.provisional.xml"
+}

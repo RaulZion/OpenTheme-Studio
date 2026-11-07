@@ -1,0 +1,14 @@
+<bpy>
+  <Theme>
+    <view_3d>
+      <ThemeView3D
+        edge_seam="#db2512"
+        face_dot="#ff8500"
+        frame_current="#60c040"
+        >
+      </ThemeView3D>
+    </view_3d>
+  </Theme>
+  <ThemeStyle>
+  </ThemeStyle>
+</bpy>

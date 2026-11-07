@@ -1,0 +1,28 @@
+Blender: Blender 5.2.3 LTS
+[schema] exit=0 OTS_SCHEMA_DUMP properties=803 structs=38 
+[check_b50] exit=0 OTS_NATIVE_CHECK pass=True mismatches=0 warnings=0 result=['FINISHED'] 
+[check_b45] exit=1 OTS_NATIVE_CHECK pass=False mismatches=6 warnings=0 result=['FINISHED'] 
+[neg_missing_style] exit=1 OTS_NATIVE_CHECK pass=False mismatches=0 warnings=0 result=['EXCEPTION'] 
+[neg_b45_attrs] exit=1 OTS_NATIVE_CHECK pass=False mismatches=0 warnings=3 result=['FINISHED'] 
+[validate_dir_b50] exit=0 Success parsing TOML in "<REPO>\packages\adapters\blender\spike\runner\fixtures\extension-5.0" 
+[validate_dir_b45] exit=0 Success parsing TOML in "<REPO>\packages\adapters\blender\spike\runner\fixtures\extension-4.5" 
+[build_b50] exit=0 created: "<SCRATCH>\native\run2_5.2.3\pkg\ots_midnight_sea_b50-0.0.1.zip", 1175 
+[build_b45] exit=0 created: "<SCRATCH>\native\run2_5.2.3\pkg\ots_midnight_sea_b45-0.0.1.zip", 1213 
+[validate_zip_b50] exit=0 Success parsing TOML in "<SCRATCH>\native\run2_5.2.3\pkg\ots_midnight_sea_b50-0.0.1.zip" 
+[validate_zip_b45] exit=0 Success parsing TOML in "<SCRATCH>\native\run2_5.2.3\pkg\ots_midnight_sea_b45-0.0.1.zip" 
+[install_b50] exit=0 ERROR ots_midnight_sea_b50: This Blender version (5.2.3) must be less than the maximum version (5.1.0) 
+[state_b50] OTS_STATE={"blender_version_string": "5.2.3 LTS", "theme_filepath": "", "text_editor.space.back": "#232323", "user_interface.wcol_regular.inner": "#545454ff"}
+[install_b45] exit=0 ERROR ots_midnight_sea_b45: This Blender version (5.2.3) must be less than the maximum version (5.0.0) 
+[state_b45] OTS_STATE={"blender_version_string": "5.2.3 LTS", "theme_filepath": "", "text_editor.space.back": "#232323", "user_interface.wcol_regular.inner": "#545454ff"}
+[validate_neg_id_double_underscore] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_id_double_underscore\blender_manifest.toml" key "id" invalid: Only single separators are supported 
+[validate_neg_id_hyphen] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_id_hyphen\blender_manifest.toml" key "id" invalid: Not a valid Python identifier 
+[validate_neg_id_trailing_underscore] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_id_trailing_underscore\blender_manifest.toml" key "id" invalid: Names must not end with a "_" 
+[validate_neg_name_backslash_escape] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_name_backslash_escape\blender_manifest.toml" key "name" invalid: text without any control characters expected 
+[validate_neg_name_leading_space] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_name_leading_space\blender_manifest.toml" key "name" invalid: text without leading/trailing white space expected 
+[validate_neg_name_unescaped_quote] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_name_unescaped_quote\blender_manifest.toml" 
+[validate_neg_tagline_punctuation] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_tagline_punctuation\blender_manifest.toml" key "tagline" invalid: alphanumeric suffix expected, the string must not end with punctuation 
+[validate_neg_tagline_too_long] exit=1 Error parsing TOML "<SCRATCH>\native\run2_5.2.3\neg\neg_tagline_too_long\blender_manifest.toml" key "tagline" invalid: a value no longer than 64 characters expected, found 65 
+[validate_neg_zip_traversal] exit=0 Success parsing TOML in "<SCRATCH>\native\run2_5.2.3\neg\neg_zip_traversal.zip" 
+[install_neg_zip_traversal] exit=0 STATUS Installed "ots_neg_zip_traversal" 
+[zip_traversal_landing] ./extensions/user_default/ots_neg_zip_traversal/ots_absolute_probe.xml ./extensions/user_default/ots_neg_zip_traversal/ots_drive_probe.xml ./extensions/user_default/ots_neg_zip_traversal/ots_traversal_probe.xml ./extensions/user_default/ots_neg_zip_traversal/sub/ots_nested_traversal_probe.xml 
+done
