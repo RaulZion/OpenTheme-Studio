@@ -73,6 +73,8 @@ importers:
 
   packages/adapters/vscode: {}
 
+  packages/connectors/vscode: {}
+
   packages/core: {}
 
 packages:
