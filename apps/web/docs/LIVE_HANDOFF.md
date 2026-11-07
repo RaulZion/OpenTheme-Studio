@@ -6,7 +6,7 @@
 - Verified repository: https://github.com/RaulZion/OpenTheme-Studio.
 - Frozen baseline: main / 77b2294873c460e5cef87cda80f267303601495a.
 - Branch/isolated clone: feature/codex-g1-live-ui-obsidian / C:/Users/micci/.codex/ots-ui-g1.
-- Verified implementation HEAD: cf3289a1ef70f6061af9a60a917f6c82ef88e41b, committed and pushed; remote ref and PR metadata match. Clean after implementation push. This handoff is a subsequent docs-only commit; exact delivery HEAD is supplied in the final chat report and current PR ref.
+- Original implementation HEAD: cf3289a1ef70f6061af9a60a917f6c82ef88e41b, committed and pushed; remote ref and PR metadata match. Clean after implementation push. The handoff and subsequent CI focus correction are committed on the same branch; exact delivery HEAD is supplied in the final chat report and current PR ref.
 - PR: https://github.com/RaulZion/OpenTheme-Studio/pull/12, open against main, not merged.
 
 ## What changed
@@ -61,10 +61,10 @@ Windows, Node 24.18.0, pnpm 10.34.9, Python 3.13, Playwright 1.56.1 / Chromium 1
 | Command actually executed | Outcome |
 | --- | --- |
 | npx --yes pnpm@10.34.9 install --frozen-lockfile --config.confirmModulesPurge=false | Passed; 5 workspace projects, lockfile up to date, 129 packages. Existing esbuild script ignored warning; builds succeed. No dependency addition or root lockfile change. |
-| npm test --prefix apps/web -- --reporter=dot | 8 files passed; 58 tests passed; 29.00s; exit 0. Baseline was 34 tests, so 24 focused live tests added. |
-| npm run build --prefix apps/web | tsc --noEmit + Vite passed; 1778 modules; JS 428.08 kB / 134.19 kB gzip; CSS 30.48 kB / 6.90 kB gzip; 4.23s; exit 0. |
-| $env:OTS_TEST_IPV6='1'; npm run test:browser --prefix apps/web | Production bundle; 13 passed (24.3s); exit 0. Four existing regression flows plus nine live flows. Host NO_COLOR/FORCE_COLOR warnings only. |
-| npx --yes pnpm@10.34.9 -r --if-present test | All workspace suites passed: core 15, VS Code adapter 8, Obsidian adapter 8, web 58; exit 0. No connector package exists in the frozen base and no other agent branch was read. |
+| npm test --prefix apps/web -- --reporter=dot | 8 files passed; 59 tests passed; 27.58s; exit 0. Baseline was 34 tests; 24 focused live tests plus one deterministic export-focus regression were added. |
+| npm run build --prefix apps/web | tsc --noEmit + Vite passed; 1778 modules; JS 428.10 kB / 134.19 kB gzip; CSS 30.48 kB / 6.90 kB gzip; 4.32s; exit 0. |
+| $env:OTS_TEST_IPV6='1'; npm run test:browser --prefix apps/web | Production bundle; 13 passed (24.8s); exit 0. Four existing regression flows plus nine live flows. Host NO_COLOR/FORCE_COLOR warnings only. |
+| npx --yes pnpm@10.34.9 -r --if-present test | Pre-correction local workspace run passed: core 15, VS Code adapter 8, Obsidian adapter 8, web 58. Post-correction full web suite passes 59; final remote workspace CI is reported in PR/chat. No connector package exists in the frozen base and no other agent branch was read. |
 | node --test scripts/*.test.mjs | tests 3, pass 3, fail 0; exit 0. |
 | apps/web/.venv/Scripts/python.exe -m unittest discover -s contracts/tests -p test_*.py -v | Ran 3 tests in 0.020s; OK; exit 0. Existing ignored package-local venv reused. |
 | git diff --exit-code 77b2294873c460e5cef87cda80f267303601495a -- pnpm-lock.yaml contracts packages AGENTS.md docs package.json tsconfig.base.json | Passed; shared/other-agent paths untouched. Root lockfile current/base blob both 52a12b334bec64e9d92e571e598ef1955621f066. |
@@ -100,3 +100,7 @@ Resolved failures: 20 new tests failed against initial transport/queue/sink stub
 ## Claims not verified
 
 No actual installed VS Code or Obsidian was changed in this work. Native settings API completion, preservation/restoration, real vault reload, exact target-version compatibility and end-to-end Gemini integration are unverified until controller testing. Browser tests cover a mock companion/picker and real sandbox file I/O, not those native guarantees. Current remote CI status is reported separately in the PR/final delivery; local passes are not substituted for it.
+
+## CI correction — 2026-11-07 16:30 Europe/Rome
+
+G0 run 42386441773 passed frozen install, root smoke, schema and all native-package tests, then exposed a preexisting export-focus race in the web shortcut regression (57/58 passed): redo restored Midnight SeaRenamed rather than Renamed. A deterministic new test ran the previous editor's delayed export-focus callback after unmount and reproduced exactly Midnight SeaRenamed. The callback used a global document query and could focus the next editor during typing. Fixed by capturing that editor's own export-button ref and checking isConnected before delayed focus. No user settings, protocol, connection logic or dependencies changed. Full local suite now 59/59; typecheck/build pass, JS 428.10 kB / 134.19 kB gzip. Browser ZIP/focus and all live tests passed again against the corrected production build: 13/13 in 24.8s before this single corrective batch was pushed. Final CI status belongs to the delivery SHA and is reported in the PR/final reply; the initial red run is not hidden or claimed green.
