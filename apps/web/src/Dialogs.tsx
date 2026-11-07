@@ -6,7 +6,7 @@ import { appNames, targetVersion } from './development-adapters';
 import { createNativeArchive, downloadNativeArchive, nativeAdapter } from './native-export';
 import type { EditorApp } from './development-adapters';
 
-function Dialog({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
+export function Dialog({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
   const container = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;

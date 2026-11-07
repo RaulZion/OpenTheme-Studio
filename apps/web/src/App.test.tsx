@@ -77,6 +77,7 @@ describe('visual editor', () => {
   it('offers native ZIP export, labels unverified installation, and restores dialog focus', async () => {
     const user = userEvent.setup();
     render(<App />);
+    await user.click(screen.getByText('Share / advanced'));
     const trigger = screen.getByRole('button', { name: 'Export theme' });
     await user.click(trigger);
     const dialog = screen.getByRole('dialog', { name: 'Export your theme' });
