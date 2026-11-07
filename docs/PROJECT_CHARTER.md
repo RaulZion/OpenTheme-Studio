@@ -6,7 +6,7 @@ Theme creators often face scattered app-specific tools, technical tokens and lit
 
 ## Product hypothesis
 
-For people who use multiple themable apps, a click-to-edit visual preview with native exports will reduce time and errors relative to manual editing or palette-only generators.
+For people who use multiple themable apps, click-to-edit controls that **apply directly to the connected installed application** will remove repeated export/install friction. ZIP exports remain a portable-sharing fallback, not the primary workflow. This is a product hypothesis that still requires live-app and participant validation.
 
 ## Who it is for
 
@@ -23,7 +23,9 @@ These are hypotheses, not yet validated customer segments.
 - Show basic and advanced controls separately; search token groups.
 - Preserve optional app-specific overrides without corrupting the global palette.
 - Save/load a portable project document locally and undo/redo changes.
-- Export **native package/files and install instructions** for VS Code and Obsidian.
+- **Immediately apply color edits to a connected, installed VS Code or Obsidian instance**, with clear connection/setup/error status and no export for each edit.
+- Use a first-party VS Code extension through documented settings APIs; use an explicitly authorized Obsidian CSS snippet folder with automatic reload. One-time opt-in setup is allowed; silent app changes are not.
+- Keep native package/files and manual installation instructions as an optional portability fallback.
 - Explicitly display preview limitations, supported app versions and export warnings.
 
 ## G2
@@ -33,7 +35,7 @@ These are hypotheses, not yet validated customer segments.
 
 ## Not in initial MVP
 
-Account system, hosted gallery, marketplace, payments, theme sync to installed apps, file system writes to app config folders, third-party code execution, and guaranteed pixel-perfect rendering for every application.
+Account system, hosted gallery, marketplace, payments, unauthorized edits to application config or user notes, direct patching of VS Code settings files, third-party code execution, remote-control servers, and guaranteed pixel-perfect rendering for every application. A user-paired VS Code loopback extension and a user-granted Obsidian `.obsidian/snippets/opentheme-studio.css` file are explicitly in the revised MVP under ADR-0004.
 
 ## Quality principles
 
@@ -41,7 +43,7 @@ Visual-first; accessible; responsive; safe native exports; honest compatibility;
 
 ## Success hypotheses to test (not observed metrics)
 
-- At least 8 of 10 recruited target users complete two native exports in under 12 minutes unassisted.
+- At least 8 of 10 recruited target users connect and directly apply a change in VS Code and Obsidian after an initial opt-in setup, without exporting a file for every edit.
 - At least 8 of 10 correctly identify where to edit a background, text, and selection color.
 - No unsupported export paths, path traversal issues, or untruthful installation instructions.
 - Qualitative feedback distinguishes product value from liking a pretty UI.

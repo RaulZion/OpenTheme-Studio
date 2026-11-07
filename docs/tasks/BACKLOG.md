@@ -27,6 +27,23 @@ All completion flags start as **not done**. No agent is currently running from t
 
 **G1 gate:** one palette exported for BOTH VS Code and Obsidian, two independent install checks, documented supported versions, no unverified UI parity assertions. Preview remains labeled illustrative.
 
+## Gate G1.1 — direct live application (revised MVP priority, 2026-11-07)
+
+**User requirement (supersedes export-first UX):** a color edit in the OpenTheme Studio browser must change the actual connected app automatically, without a ZIP download or manual install on every edit. Scope and safety constraints in [ADR-0004](../decisions/ADR-0004-live-application.md). This is the **next release blocker before Blender or UI polish**.
+
+| ID | Owner | Exclusive files | Minimum acceptance |
+|---|---|---|---|
+| OTS-141 | ChatGPT | Shared ADR, protocol, backlog, root lockfile/CI and integration | Freeze live bridge contract and SHA, integrate one pass; no cross-agent review |
+| OTS-142 | Gemini | `packages/connectors/vscode/**` | Local paired desktop VS Code companion; validate theme JSON; apply workbench colors via official config API live; preserve/restore unrelated settings, localhost/auth tests |
+| OTS-143 | Codex | `apps/web/**` | Default live-connect/apply controls, connection status, automatic debounced sync on color edit and undo; Obsidian one-time directory permission and same-name owned CSS snippet live update; no manual export in main path |
+| OTS-144 | ChatGPT | Integration-only files/CI | First run in real VS Code with changed color and restore; real Obsidian vault auto reload after one-time snippet enablement; regression, errors and disconnect; label native evidence accurately |
+
+**Dependencies:** OTS-141 first; OTS-142 and OTS-143 run in parallel on separate branches based on its frozen SHA. The existing `ThemeProject` 1.0.0 schema, native exporters, offline behavior and GitHub repo remain authoritative. Blender G2 is not a dependency.
+
+**Single QA gate:** agents self-test and deliver one PR each, without reviewing one another. Controller reconciles root dependencies and tests cross-package behavior once. Only reproducible critical bugs trigger one consolidated fix batch; other issues go to backlog. **No rewriting the UI or rebuilding the app as a desktop application during this work package.**
+
+**Definition of working:** connected status is authentic; changing one role automatically changes that role in the real app; no export is required for a subsequent edit; disconnect/failure is visible and not falsely acknowledged. Original user app settings remain recoverable. CI/test suites passing without native-app evidence means implementation candidate, not verified compatibility release.
+
 ## Gate G2 — Blender adapter
 
 | ID | Owner | Task | Acceptance |
