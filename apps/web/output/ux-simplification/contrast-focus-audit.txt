@@ -1,0 +1,5 @@
+# Interface contrast (outside the user-themed preview) and keyboard focus audit, production build, Chromium 1440x1000, all <details> opened before measuring
+dark: 86 interface text nodes, min contrast 5.29:1 ("Estimate for this color pair, not an acc"), smallest font 14px, below 4.5:1: 0
+light: 86 interface text nodes, min contrast 5.21:1 ("VS Code 1.144.0 target · Native appearan"), smallest font 14px, below 4.5:1: 0
+focus: 30 tab stops checked, without visible outline: none
+tab order: OpenTheme Studio workspace → Project name → Import → Save project → Share / advanced → Use light studio appearance → Editor help → How it works → Connect VS Code → Connect Obsidian → VS CodeCode editor → ObsidianNotes app → Apply Midnight Sea palette → Apply Velvet Dusk palette → Apply Paper Garden palette → All colors → Compare original → Edit Sidebar background → Edit Raised surface → Edit Editor background → Edit Secondary text → Edit Primary text → Edit Selection → Edit Accent → Edit Borders → Edit Success → Edit Error → Edit Warning → Edit Text on accent → Shared palette

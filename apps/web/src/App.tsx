@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowRight, ArrowUpFromLine, Check, ChevronDown, CircleHelp, Code2, Eye, Globe2, Layers3, Menu, Moon, MousePointer2, PanelRight, Redo2, Search, SlidersHorizontal, Sparkles, Sun, Undo2, X } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Check, ChevronDown, CircleHelp, Code2, Eye, Layers3, Menu, Moon, MoreHorizontal, MousePointer2, PanelRight, Redo2, Search, Sun, Undo2, X } from 'lucide-react';
 import type { ColorBinding, SemanticRole, ThemeProject } from '../../../contracts/adapter-api';
-import { appNames, developmentAdapter, regions, targetVersion } from './development-adapters';
+import { appNames, regions, targetVersion } from './development-adapters';
 import type { EditorApp } from './development-adapters';
 import { commit, createHistory, parseProject, redo, resetApp, resetOverride, serializeProject, setColor, undo } from './model';
 import { presets, starter } from './presets';
@@ -44,7 +44,6 @@ export default function App() {
   const exportTrigger = useRef<HTMLButtonElement>(null);
   const baseline = useRef(initial.project);
   const region = regions.find(item => item.role === selected)!;
-  const controls = developmentAdapter(app).getControls(project, targetVersion(app));
   const update = (next: ThemeProject) => { setHistory(current => commit(current, next)); setComparing(false); };
   const announce = (message: string, failed = false) => { setNotice(message); setError(failed); };
 
@@ -99,43 +98,60 @@ export default function App() {
     } catch (reason) { announce(`Import failed: ${reason instanceof Error ? reason.message : 'Unknown error.'} Your current project is unchanged.`, true); }
     finally { setImporting(false); if (importInput.current) importInput.current.value = ''; }
   };
-  const overrides = Object.keys(project.appOverrides?.[app] ?? {}).length;
+  const matchingRoles = regions.filter(item => `${item.label} ${item.role}`.toLowerCase().includes(query.toLowerCase()));
 
   return <div className="studio" data-appearance={appearance} data-testid="studio">
     <a className="skip-link" href="#workspace">Skip to preview</a>
     <header className="studio-header">
-      <a className="brand" href="#workspace" aria-label="OpenTheme Studio workspace"><span className="brand-symbol"><Layers3 size={23} /></span><span>OpenTheme<span className="brand-light"> Studio</span></span><span className="version-pill">MVP</span></a>
-      <div className="header-right"><span className="local-badge"><span className="tiny-dot" /> LOCAL FIRST</span><button className="icon-button" aria-label={`Use ${appearance === 'dark' ? 'light' : 'dark'} studio appearance`} title="Toggle studio appearance" onClick={() => setAppearance(value => value === 'dark' ? 'light' : 'dark')}>{appearance === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button><button className="icon-button" aria-label="Editor help" onClick={() => setDialog('help')}><CircleHelp size={18} /></button></div>
+      <a className="brand" href="#workspace" aria-label="OpenTheme Studio workspace"><span className="brand-symbol"><Layers3 size={24} /></span><span>OpenTheme<span className="brand-light"> Studio</span></span></a>
+      <div className="project-meta">
+        <ProjectName name={project.name} onChange={name => update({ ...project, name })} />
+        <span className={`save-status ${!stored ? 'storage-warning' : ''}`}>{stored ? 'Saved in this browser' : 'Memory only · download a backup'}</span>
+      </div>
+      <div className="project-actions">
+        <div className="history-actions">
+          <button className="icon-button" aria-label="Undo" title="Undo · Ctrl/⌘ Z" disabled={!history.past.length} onClick={() => { setHistory(undo); setComparing(false); }}><Undo2 size={20} /></button>
+          <button className="icon-button" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" disabled={!history.future.length} onClick={() => { setHistory(redo); setComparing(false); }}><Redo2 size={20} /></button>
+        </div>
+        <button className="toolbar-button" title="Import project JSON" disabled={importing} onClick={() => importInput.current?.click()}><ArrowUpFromLine size={18} /><span className="button-label">{importing ? 'Importing…' : 'Import'}</span></button>
+        <input ref={importInput} className="visually-hidden" type="file" accept=".json,application/json" aria-label="Import project JSON" tabIndex={-1} disabled={importing} onChange={event => void importProject(event.target.files?.[0])} />
+        <button className="toolbar-button" title="Download project JSON" onClick={saveProject}><ArrowDownToLine size={18} /><span className="button-label">Save project</span></button>
+        <details className="share-menu"><summary>Share / advanced<ChevronDown className="share-chevron" size={16} aria-hidden="true" /><MoreHorizontal className="share-more" size={20} aria-hidden="true" /></summary>
+          <div className="share-popover"><button ref={exportTrigger} className="menu-item" aria-label="Export theme" onClick={() => setDialog('export')}>Export theme ZIP</button></div>
+        </details>
+      </div>
+      <div className="header-tools">
+        <button className="icon-button" aria-label={`Use ${appearance === 'dark' ? 'light' : 'dark'} studio appearance`} title="Toggle studio appearance" onClick={() => setAppearance(value => value === 'dark' ? 'light' : 'dark')}>{appearance === 'dark' ? <Sun size={20} /> : <Moon size={20} />}</button>
+        <button className="icon-button" aria-label="Editor help" title="Help" onClick={() => setDialog('help')}><CircleHelp size={20} /></button>
+      </div>
     </header>
-    <div className="project-toolbar"><div className="project-meta"><span className="project-avatar"><Sparkles size={17} /></span><div><ProjectName name={project.name} onChange={name => update({ ...project, name })} /><span className={`save-status ${!stored ? 'storage-warning' : ''}`}><span className="tiny-dot" />{stored ? 'Saved in this browser' : 'Memory only · download a backup'}</span></div></div>
-      <div className="project-actions"><div className="history-actions"><button className="icon-button" aria-label="Undo" title="Undo · Ctrl/⌘ Z" disabled={!history.past.length} onClick={() => { setHistory(undo); setComparing(false); }}><Undo2 size={17} /></button><button className="icon-button" aria-label="Redo" title="Redo · Ctrl/⌘ Shift Z" disabled={!history.future.length} onClick={() => { setHistory(redo); setComparing(false); }}><Redo2 size={17} /></button></div><button className="toolbar-button" disabled={importing} onClick={() => importInput.current?.click()}><ArrowUpFromLine size={15} /><span>{importing ? 'Importing…' : 'Import'}</span></button><input ref={importInput} className="visually-hidden" type="file" accept=".json,application/json" aria-label="Import project JSON" tabIndex={-1} disabled={importing} onChange={event => void importProject(event.target.files?.[0])} /><button className="toolbar-button" onClick={saveProject}><ArrowDownToLine size={15} /><span>Save project</span></button><details className="share-menu"><summary>Share / advanced<ChevronDown size={13} /></summary><button ref={exportTrigger} className="toolbar-button" aria-label="Export theme" onClick={() => setDialog('export')}>Export theme ZIP<ArrowRight size={15} /></button></details></div>
-    </div>
     <LiveConnections project={project} />
-    <div className="mobile-panels"><button aria-expanded={navigationOpen} aria-controls="navigation-panel" onClick={() => setNavigationOpen(value => !value)}><Menu size={16} /> Applications & palette</button><button aria-expanded={inspectorOpen} aria-controls="inspector-panel" onClick={() => setInspectorOpen(value => !value)}><PanelRight size={16} /> Inspector</button></div>
+    <div className="mobile-panels"><button aria-expanded={navigationOpen} aria-controls="navigation-panel" onClick={() => setNavigationOpen(value => !value)}><Menu size={20} /> Applications & palette</button><button aria-expanded={inspectorOpen} aria-controls="inspector-panel" onClick={() => setInspectorOpen(value => !value)}><PanelRight size={20} /> Inspector</button></div>
     <div className={`editor-layout ${navigationOpen ? 'navigation-open' : ''} ${inspectorOpen ? 'inspector-open' : ''}`}>
       <nav className="navigation" id="navigation-panel" aria-label="Applications and palette">
-        <div className="panel-label">APPLICATIONS<span className="count-badge">2</span></div>
-        {(['vscode', 'obsidian'] as EditorApp[]).map(id => <button className={`app-choice ${app === id ? 'active-app' : ''}`} key={id} aria-pressed={app === id} onClick={() => changeApp(id)}><span className={`app-monogram ${id}`}>{id === 'vscode' ? <Code2 size={23} /> : <span className="obsidian-shape" />}</span><span><strong>{appNames[id]}</strong><small>{id === 'vscode' ? 'Code editor' : 'Notes & knowledge'}</small></span>{app === id && <span className="active-indicator" />}</button>)}
-        <div className="navigation-divider" />
-        <div className="panel-label">START WITH A PALETTE<Sparkles size={13} /></div>
-        <div className="preset-list">{presets.map(preset => <button className="preset" key={preset.name} aria-label={`Apply ${preset.name} palette`} title="Changes shared palette and theme mode. Existing app overrides are kept. Undo is available." onClick={() => { update({ ...project, tokens: structuredClone(preset.tokens), syntax: structuredClone(preset.syntax), mode: preset.mode }); announce(`${preset.name} palette applied. Existing app overrides are kept.`); }}><span className="preset-colors">{[preset.tokens.canvas, preset.tokens.accent, preset.tokens.success, preset.tokens.warning].map((color, index) => <i key={index} style={{ background: color }} />)}</span><span><strong>{preset.name}</strong><small>{preset.tag}</small></span><ChevronDown size={12} className="preset-arrow" /></button>)}</div>
-        <div className="navigation-divider" />
-        <div className="panel-label">SHARED PALETTE<Globe2 size={13} /></div><label className="palette-search"><Search size={14} /><input aria-label="Search color roles" placeholder="Find a color role…" value={query} onChange={event => setQuery(event.target.value)} /></label>
-        <div className="palette-roles">{regions.filter(item => `${item.label} ${item.role}`.toLowerCase().includes(query.toLowerCase())).map(item => <button key={item.role} className={`palette-role ${item.role === selected ? 'selected-palette-role' : ''}`} onClick={() => { setSelected(item.role); setScope('shared'); setInspectorOpen(true); setFocusRequest(value => value + 1); }} aria-pressed={item.role === selected}><span className="color-dot" style={{ background: project.tokens[item.role] }} /><span>{item.label}</span><code>{project.tokens[item.role].toUpperCase()}</code></button>)}{!regions.some(item => `${item.label} ${item.role}`.toLowerCase().includes(query.toLowerCase())) && <p className="empty-search">No matching color roles.</p>}</div>
-        <div className="local-note"><Globe2 size={16} /><div><strong>Yours, by design.</strong><p>No accounts. No uploads.<br />Your ideas stay in your browser.</p></div></div>
+        <p className="panel-label">Applications</p>
+        <div className="app-list">{(['vscode', 'obsidian'] as EditorApp[]).map(id => <button className={`app-choice ${app === id ? 'active-app' : ''}`} key={id} aria-pressed={app === id} onClick={() => changeApp(id)}><span className={`app-monogram ${id}`}>{id === 'vscode' ? <Code2 size={22} /> : <span className="obsidian-shape" />}</span><span><strong>{appNames[id]}</strong><small>{id === 'vscode' ? 'Code editor' : 'Notes app'}</small></span></button>)}</div>
+        <p className="panel-label">Palettes</p>
+        <div className="preset-list">{presets.map(preset => <button className="preset" key={preset.name} aria-label={`Apply ${preset.name} palette`} title="Changes shared palette and theme mode. Existing app overrides are kept. Undo is available." onClick={() => { update({ ...project, tokens: structuredClone(preset.tokens), syntax: structuredClone(preset.syntax), mode: preset.mode }); announce(`${preset.name} palette applied. Existing app overrides are kept.`); }}><span className="preset-colors" aria-hidden="true">{[preset.tokens.canvas, preset.tokens.accent, preset.tokens.success, preset.tokens.warning].map((color, index) => <i key={index} style={{ background: color }} />)}</span><span><strong>{preset.name}</strong><small>{preset.mode === 'dark' ? 'Dark' : 'Light'}</small></span></button>)}</div>
+        <details className="all-colors"><summary>All colors<ChevronDown size={18} aria-hidden="true" /></summary>
+          <label className="palette-search"><Search size={18} aria-hidden="true" /><input aria-label="Search color roles" placeholder="Find a color…" value={query} onChange={event => setQuery(event.target.value)} /></label>
+          <div className="palette-roles">{matchingRoles.map(item => <button key={item.role} className={`palette-role ${item.role === selected ? 'selected-palette-role' : ''}`} onClick={() => { setSelected(item.role); setScope('shared'); setInspectorOpen(true); setFocusRequest(value => value + 1); }} aria-pressed={item.role === selected}><span className="color-dot" style={{ background: project.tokens[item.role] }} /><span>{item.label}</span><code>{project.tokens[item.role].toUpperCase()}</code></button>)}{!matchingRoles.length && <p className="empty-search">No matching colors.</p>}</div>
+        </details>
       </nav>
       <main className="workspace" id="workspace" tabIndex={-1}>
-        <div className="workspace-heading"><div className="eyebrow"><span /> YOUR CREATIVE WORKSPACE</div><h1>A space that feels like you<span>.</span></h1><p>A few thoughtful colors. A whole different feeling.</p></div>
-        <div className="preview-heading"><div><span className="preview-app-title">{appNames[app]}<span className="illustrative-badge"><Eye size={12} /> Illustrative preview</span></span><p>Click an outlined element to make it your own.</p></div><span className="scene-label">Workspace</span></div>
+        <div className="preview-heading">
+          <div className="preview-title"><h1>{appNames[app]}</h1><span className="preview-note"><Eye size={16} aria-hidden="true" /> Illustrative preview</span></div>
+          <button className={`compare-button ${comparing ? 'comparing' : ''}`} aria-pressed={comparing} onClick={() => setComparing(value => !value)}><span className="compare-icon" aria-hidden="true" />{comparing ? 'Back to your edits' : 'Compare original'}</button>
+        </div>
         <Preview project={comparing ? baseline.current : project} app={app} selected={selected} onSelect={chooseRegion} comparing={comparing} />
-        <div className="preview-controls"><span><MousePointer2 size={14} />{comparing ? 'Original project · editing paused' : 'Click to select · Tab to explore'}</span><button className={`compare-button ${comparing ? 'comparing' : ''}`} aria-pressed={comparing} onClick={() => setComparing(value => !value)}><span className="compare-icon" />{comparing ? 'Back to your edits' : 'Compare original'}</button></div>
-        <div className="palette-summary"><div><span className="palette-summary-icon"><Globe2 size={19} /></span><div><strong>Shared colors. Individual character.</strong><p>{overrides ? `${overrides} ${appNames[app]} override${overrides === 1 ? '' : 's'} kept separate from your palette.` : 'Your semantic palette travels across both applications.'}</p></div></div><div className="summary-swatches">{['accent', 'success', 'warning', 'error'].map(key => <i key={key} style={{ background: project.tokens[key as SemanticRole] }} />)}</div></div>
-        <div className="compatibility-footer"><span><SlidersHorizontal size={13} /> {controls.length} editable preview roles</span><span>{appNames[app]} {targetVersion(app)} target · Native appearance unverified</span></div>
+        <div className="preview-footer">
+          <p className="preview-hint"><MousePointer2 size={18} aria-hidden="true" />{comparing ? 'Showing your original project. Editing is paused.' : 'Click any outlined area to edit its color.'}</p>
+          <p className="preview-limits">{appNames[app]} {targetVersion(app)} target · Native appearance unverified</p>
+        </div>
       </main>
       <Inspector project={project} app={app} region={region} scope={scope} focusRequest={focusRequest} onScope={setScope} onChange={changeColor} onReset={() => { update(resetOverride(project, app, region.keys[app])); setScope('shared'); }} onResetApp={() => { update(resetApp(project, app)); setScope('shared'); }} />
     </div>
-    <footer className="studio-footer"><span><span className="tiny-dot" /> DEVELOPMENT PREVIEW</span><span>Made for a more personal workspace.</span><span>Project schema 1.0.0</span></footer>
-    {notice && <div className={`notice ${error ? 'notice-error' : ''}`} role={error ? 'alert' : 'status'}>{error ? <CircleHelp size={17} /> : <Check size={17} />}<span>{notice}</span><button aria-label="Dismiss notification" className="icon-button" onClick={() => setNotice('')}><X size={15} /></button></div>}
+    {notice && <div className={`notice ${error ? 'notice-error' : ''}`} role={error ? 'alert' : 'status'}>{error ? <CircleHelp size={20} /> : <Check size={20} />}<span>{notice}</span><button aria-label="Dismiss notification" className="icon-button" onClick={() => setNotice('')}><X size={18} /></button></div>}
     {dialog === 'export' && <ExportDialog project={project} app={app} onClose={() => { const trigger = exportTrigger.current; setDialog(null); requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus(); }); }} onSave={saveProject} />}
     {dialog === 'help' && <HelpDialog onClose={() => setDialog(null)} />}
   </div>;
