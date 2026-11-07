@@ -2,7 +2,7 @@
 
 Open-source, local-first visual theme studio for multiple applications with **officially supported theme APIs and file formats**. The project's value proposition is not simply converting palettes; it is a usable click-to-edit preview, one semantic palette, application-specific refinement, and safe native exports.
 
-**Status as of 2026-11-04:** G0 was merged and validated on `main` (`06eda81c59d46e7ff3abb5977a041ff00e86552c`). The first **runnable G1 MVP candidate** is in [integration PR #7](https://github.com/RaulZion/OpenTheme-Studio/pull/7): a visual editor with local JSON save/import and native VS Code/Obsidian theme ZIP downloads. It is not a verified native-compatibility release; target-version installation evidence is still required.
+**Status as of 2026-11-07:** G1 editor + VS Code/Obsidian export code is integrated on `main` (`bae9b63743a95db3f5d2ed69549137c24fb7abb2`) with green integration CI. **This is not the accepted product UX:** the user tried manually installing an exported theme and found it too cumbersome. **Next gate G1.1** ([issue #8](https://github.com/RaulZion/OpenTheme-Studio/issues/8), [ADR-0004](docs/decisions/ADR-0004-live-application.md)) makes live updates to connected installed VS Code and Obsidian the primary workflow. **Direct live sync is not implemented yet.** Manual ZIP export is the current fallback only. Real native version testing remains required.
 
 ## Start here
 
@@ -14,7 +14,7 @@ Open-source, local-first visual theme studio for multiple applications with **of
 
 ## User promise
 
-- No coding knowledge needed to pick, modify, preview and export a theme.
+- No coding knowledge needed to pick and edit colors. **Target user flow:** change a color and see it in the connected application without export, after one-time opt-in pairing/permissions. G1.1 implementation is pending.
 - One project supports several compatible apps while preserving app-specific override controls.
 - Never patch app binaries, inject unsupported CSS or scripts, write silently to app directories, or request unnecessary permissions.
 - Honest compatibility labels, export guidance and preview-fidelity notes.
@@ -26,6 +26,7 @@ Open-source, local-first visual theme studio for multiple applications with **of
 |---|---|---|
 | G0 | Documentation, research plan, shared contract, repo baseline | All agents can read one immutable baseline |
 | G1 | Core palette and visual editor, VS Code + Obsidian exporters | Two verifiable native exports |
+| G1.1 (next) | Live VS Code color changes through official extension API; Obsidian auto-reloaded, user-authorized CSS snippet | No ZIP per edit; real app applies and can restore changes |
 | G2 | Blender version-aware adapter feasibility and integration | Actual Blender test on explicitly supported version(s) |
 | G3 | UX validation, accessibility, polished release | Users complete tasks without technical support |
 | Later | Gallery, community adapter ecosystem, public theme publishing | Only after G1-G3 evidence |
