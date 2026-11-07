@@ -1,0 +1,10 @@
+$ npm test --prefix apps/web -- --reporter=dot
+> @opentheme/web@0.1.0 test
+> vitest run --reporter=dot
+ RUN  v4.0.8 C:/Users/micci/OneDrive/Desktop/OpenTheme Studio/OpenTheme-Studio-claude-ux/apps/web
+···························································
+ Test Files  8 passed (8)
+      Tests  59 passed (59)
+   Start at  17:38:15
+   Duration  23.27s (transform 318ms, setup 3.88s, collect 1.78s, tests 7.07s, environment 8.61s, prepare 98ms)
+exit=0

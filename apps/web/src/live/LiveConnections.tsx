@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plug, Unplug } from 'lucide-react';
+import { Unplug } from 'lucide-react';
 import type { ThemeProject } from '../../../../contracts/adapter-api';
 import { Dialog } from '../Dialogs';
 import { serializeProject } from '../model';
@@ -16,6 +16,8 @@ declare global {
 const disconnected: LiveState = { phase: 'disconnected', message: 'Local edits only. Connect once to apply changes automatically.' };
 const labels = { disconnected: 'Disconnected', connecting: 'Connecting…', pending: 'Changes pending', syncing: 'Applying…', connected: 'Connected', error: 'Sync paused — error' };
 const active = (state: LiveState) => ['connected', 'pending', 'syncing'].includes(state.phase);
+// The initial idle message repeats the band intro, so the card shows a short app-specific hint instead.
+const quiet = (state: LiveState) => state.message === disconnected.message;
 const errorMessage = (error: unknown) => error instanceof DOMException && ['NotAllowedError', 'SecurityError'].includes(error.name)
   ? 'Folder permission denied or revoked. Reconnect in local Chromium and grant access to .obsidian.'
   : error instanceof Error ? error.message : 'Live application failed. Local edits are kept; reconnect to retry.';
@@ -113,25 +115,35 @@ export default function LiveConnections({ project }: { project: ThemeProject }) 
     finally { setCleanupBusy(false); }
   }
   return <section className="live-connections" aria-label="Live application">
-    <div className="live-intro"><strong><Plug size={16} /> Live application</strong><span>Connect once. Edits, undo and imports apply automatically.</span></div>
+    <div className="live-intro"><strong>Connect your apps</strong><p>Connect once. Every edit, undo and import then applies automatically.</p>
+      <details className="live-details"><summary>How it works</summary>
+        <p><strong>VS Code.</strong> Studio talks only to the companion at 127.0.0.1:43187. Session-only pairing; disconnect forgets the code and keeps the last colors. Restore here before disconnecting, or use the extension's restore command.</p>
+        <p><strong>Obsidian.</strong> Choose the <code>.obsidian</code> configuration folder. Enable <strong>opentheme-studio</strong> once in Obsidian’s CSS snippets settings; subsequent saves reload automatically. Only <code>snippets/opentheme-studio.css</code> is written. No vault notes are read. Keep Obsidian open; the browser cannot detect its running state or snippet enablement.</p>
+      </details>
+    </div>
     <div className="live-targets">
       <article className="live-target" aria-label="VS Code live connection">
-        <div className="live-target-heading"><strong>VS Code</strong><span className={`live-phase live-${vs.phase}`}>{labels[vs.phase]}</span></div>
-        <p aria-live="polite">{vs.message}</p>{vs.warning && <p className="live-warning">{vs.warning}</p>}
-        <div className="live-actions">{active(vs) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('vscode')}><Unplug size={14} /> Disconnect VS Code</button> : <button className="primary-button" disabled={!local || vs.phase === 'connecting' || cleanupBusy} onClick={() => { setPairError(''); setPairingOpen(true); }}>Connect VS Code</button>}
-          {sinks.current.vscode && <button className="toolbar-button" disabled={cleanupBusy} onClick={() => void cleanup('vscode')}>Restore VS Code colors</button>}
-          {sinks.current.vscode && vs.phase === 'error' && <button className="toolbar-button" onClick={() => stop('vscode')}>Forget VS Code connection</button>}</div>
-        <small>Companion at 127.0.0.1:43187. Session-only pairing; disconnect forgets the code and keeps the last colors. Restore here before disconnecting, or use the extension's restore command.</small>
+        <div className="live-target-heading">
+          <div className="live-name"><strong>VS Code</strong><span className={`live-phase live-${vs.phase}`}>{labels[vs.phase]}</span></div>
+          <div className="live-actions">{active(vs) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('vscode')}><Unplug size={18} /> Disconnect VS Code</button> : <button className="primary-button" disabled={!local || vs.phase === 'connecting' || cleanupBusy} onClick={() => { setPairError(''); setPairingOpen(true); }}>Connect VS Code</button>}
+            {sinks.current.vscode && <button className="secondary-button" disabled={cleanupBusy} onClick={() => void cleanup('vscode')}>Restore VS Code colors</button>}
+            {sinks.current.vscode && vs.phase === 'error' && <button className="toolbar-button" onClick={() => stop('vscode')}>Forget VS Code connection</button>}</div>
+        </div>
+        <p className="live-message" aria-live="polite">{quiet(vs) ? '' : vs.message}</p>{vs.warning && <p className="live-warning">{vs.warning}</p>}
+        {quiet(vs) && <p className="live-hint">Requires the OpenTheme Studio companion extension.</p>}
       </article>
       <article className="live-target" aria-label="Obsidian live connection">
-        <div className="live-target-heading"><strong>Obsidian</strong><span className={`live-phase live-${obsidian.phase}`}>{labels[obsidian.phase]}</span></div>
-        <p aria-live="polite">{obsidian.message}</p>
-        <div className="live-actions">{active(obsidian) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('obsidian')}><Unplug size={14} /> Stop Obsidian sync</button> : <button className="primary-button" disabled={!canPick || obsidian.phase === 'connecting' || cleanupBusy} onClick={() => void connectObsidian()}>Connect Obsidian</button>}
-          {sinks.current.obsidian && <button className="toolbar-button" disabled={cleanupBusy} onClick={() => void cleanup('obsidian')}>Remove generated snippet</button>}</div>
-        <small>{!canPick && 'Folder access requires local Chromium with the File System Access API. '}Choose the <code>.obsidian</code> configuration folder. Enable <strong>opentheme-studio</strong> once in <strong>Settings → Appearance → CSS snippets</strong>; subsequent saves reload automatically. Only <code>snippets/opentheme-studio.css</code> is written. No vault notes are read. Keep Obsidian open; the browser cannot detect its running state or snippet enablement.</small>
+        <div className="live-target-heading">
+          <div className="live-name"><strong>Obsidian</strong><span className={`live-phase live-${obsidian.phase}`}>{labels[obsidian.phase]}</span></div>
+          <div className="live-actions">{active(obsidian) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('obsidian')}><Unplug size={18} /> Stop Obsidian sync</button> : <button className="primary-button" disabled={!canPick || obsidian.phase === 'connecting' || cleanupBusy} onClick={() => void connectObsidian()}>Connect Obsidian</button>}
+            {sinks.current.obsidian && <button className="secondary-button" disabled={cleanupBusy} onClick={() => void cleanup('obsidian')}>Remove generated snippet</button>}</div>
+        </div>
+        <p className="live-message" aria-live="polite">{quiet(obsidian) ? '' : obsidian.message}</p>
+        {!canPick ? <p className="live-warning">Folder access requires local Chromium with the File System Access API.</p> : quiet(obsidian) && <p className="live-hint">You will choose your vault’s <code>.obsidian</code> folder.</p>}
+        {active(obsidian) && <p className="live-next">One-time step in Obsidian: enable <strong>opentheme-studio</strong> under <strong>Settings → Appearance → CSS snippets</strong>.</p>}
       </article>
     </div>
-    {!local && <p className="live-warning">Live connections require http://127.0.0.1:5173 or http://localhost:5173. Local editing and optional ZIP sharing remain available here.</p>}
+    {!local && <p className="live-warning live-origin">Live connections require http://127.0.0.1:5173 or http://localhost:5173. Local editing and optional ZIP sharing remain available here.</p>}
     {pairingOpen && <Dialog title="Connect VS Code" onClose={closePairing}>
       <p className="dialog-subtitle">One-time setup, then automatic color updates.</p>
       <ol className="help-steps"><li>Install the first-party OpenTheme Studio companion extension once in desktop VS Code.</li><li>Run <strong>OpenTheme Studio: Enable Live Sync</strong>, then <strong>Copy pairing code</strong>.</li><li>Paste the code below. Pairing applies your current project immediately using the extension's settings API.</li></ol>

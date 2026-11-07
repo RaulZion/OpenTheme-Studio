@@ -34,7 +34,7 @@ export function Dialog({ title, children, onClose }: { title: string; children: 
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
         if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }
-    }}><button className="icon-button dialog-close" aria-label="Close dialog" onClick={onClose}><X size={18} /></button><div className="dialog-mark"><ArrowDownToLine size={24} /></div><h2 id="dialog-title">{title}</h2>{children}</div>
+    }}><button className="icon-button dialog-close" aria-label="Close dialog" onClick={onClose}><X size={20} /></button><h2 id="dialog-title">{title}</h2>{children}</div>
   </div>;
 }
 
