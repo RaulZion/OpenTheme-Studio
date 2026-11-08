@@ -9,7 +9,7 @@ const cors = { 'Access-Control-Allow-Origin': studioOrigin, 'Access-Control-Allo
 async function pair(page: Page) {
   await page.getByRole('button', { name: 'Connect VS Code', exact: true }).click();
   await page.getByLabel('Pairing code').fill(token);
-  await page.getByRole('button', { name: 'Pair and apply' }).click();
+  await page.getByRole('button', { name: 'Pair, remember and apply' }).click();
 }
 async function color(page: Page, hex: string) {
   await page.getByLabel('Hex color').fill(hex);
@@ -50,11 +50,12 @@ test('VS Code authenticates once, then debounces edit/undo/redo/palette/import w
   await page.getByLabel('Import project JSON').setInputFiles({ name: 'live.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(imported)) });
   await expect.poll(() => applies.at(-1)?.project.name).toBe('Live imported');
   expect(applies.at(-1)!.project).toEqual(imported);
-  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toContain(token);
+  expect(await page.evaluate(() => localStorage.getItem('opentheme.project.v1'))).not.toContain(token);
   expect(downloads).toBe(0);
   await page.screenshot({ path: 'output/playwright/live-vscode-mock.png', fullPage: true });
   await target.getByRole('button', { name: 'Restore VS Code colors' }).click();
   await expect(target.getByText(/Restore confirmed/)).toBeVisible(); expect(restores).toBe(1);
+  expect(await page.evaluate(() => localStorage.getItem('opentheme.vscode.pairing.v1'))).toBeNull();
 });
 
 test('health alone does not connect; disconnect cancels pending auto-apply', async ({ page }) => {
@@ -117,13 +118,13 @@ test('a failed established session can explicitly forget its pairing code', asyn
     applies++;
     return route.fulfill(applies === 1
       ? { json: { ok: true, appliedCount: 12, version: '1.144.0', warning: null }, headers: cors }
-      : { status: 401, json: { ok: false, code: 'BAD_TOKEN', message: 'revoked' }, headers: cors });
+      : { status: 403, json: { ok: false, code: 'ORIGIN_REJECTED', message: 'origin rejected' }, headers: cors });
   });
   await pair(page);
   const target = page.getByRole('article', { name: 'VS Code live connection' });
   await expect(target.getByText('Connected', { exact: true })).toBeVisible();
   await color(page, '#112233');
-  await expect(target).toContainText('Pairing code rejected');
+  await expect(target).toContainText('Studio origin rejected');
   await target.getByRole('button', { name: 'Forget VS Code connection' }).click();
   await expect(target.getByText('Disconnected', { exact: true })).toBeVisible();
   await expect(target.getByRole('button', { name: 'Restore VS Code colors' })).toHaveCount(0);

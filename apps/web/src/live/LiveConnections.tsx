@@ -7,14 +7,15 @@ import { createObsidianSink } from './obsidian';
 import type { ConfigDirectory, ObsidianSink } from './obsidian';
 import { LiveSync } from './sync';
 import type { LiveState } from './sync';
-import { LOCAL_ORIGINS, pairVSCode, requireLocalOrigin } from './vscode';
-import type { Receipt, VSCodeSink } from './vscode';
+import { LOCAL_ORIGINS, requireLocalOrigin } from './vscode';
+import type { Receipt } from './vscode';
+import { initialVSState, PAIRING_STORAGE_KEY, RememberedVSCode } from './remembered-vscode';
 
 declare global {
   interface Window { showDirectoryPicker?: (options: { id: string; mode: 'readwrite' }) => Promise<ConfigDirectory> }
 }
 const disconnected: LiveState = { phase: 'disconnected', message: 'Local edits only. Connect once to apply changes automatically.' };
-const labels = { disconnected: 'Disconnected', connecting: 'Connecting…', pending: 'Changes pending', syncing: 'Applying…', connected: 'Connected', error: 'Sync paused — error' };
+const labels = { disconnected: 'Disconnected', connecting: 'Connecting…', pending: 'Changes pending', syncing: 'Applying…', connected: 'Connected', waiting: 'Waiting for VS Code', error: 'Sync paused — error' };
 const active = (state: LiveState) => ['connected', 'pending', 'syncing'].includes(state.phase);
 // The initial idle message repeats the band intro, so the card shows a short app-specific hint instead.
 const quiet = (state: LiveState) => state.message === disconnected.message;
@@ -23,57 +24,49 @@ const errorMessage = (error: unknown) => error instanceof DOMException && ['NotA
   : error instanceof Error ? error.message : 'Live application failed. Local edits are kept; reconnect to retry.';
 
 export default function LiveConnections({ project }: { project: ThemeProject }) {
-  const [vs, setVS] = useState<LiveState>(disconnected);
+  const [vs, setVS] = useState(initialVSState);
   const [obsidian, setObsidian] = useState<LiveState>(disconnected);
-  const [channels] = useState(() => ({ vscode: new LiveSync(setVS), obsidian: new LiveSync(setObsidian) }));
+  const [channels] = useState(() => ({ obsidian: new LiveSync(setObsidian) }));
   const [pairingOpen, setPairingOpen] = useState(false);
   const [code, setCode] = useState('');
   const [pairError, setPairError] = useState('');
+  const [vscode] = useState(() => new RememberedVSCode(state => { setVS(state); if (state.phase === 'error') setPairError(state.message); }));
   const [cleanupBusy, setCleanupBusy] = useState(false);
-  const attempts = useRef<Partial<Record<'vscode' | 'obsidian', AbortController>>>({});
-  const sinks = useRef<{ vscode?: VSCodeSink; obsidian?: ObsidianSink }>({});
+  const attempts = useRef<{ obsidian?: AbortController }>({});
+  const sinks = useRef<{ obsidian?: ObsidianSink }>({});
   const latest = useRef(project);
   latest.current = project;
   const local = LOCAL_ORIGINS.includes(location.origin);
   const canPick = local && window.isSecureContext && typeof window.showDirectoryPicker === 'function';
 
-  useEffect(() => { channels.vscode.edit(project); channels.obsidian.edit(project); }, [channels, project]);
-  useEffect(() => () => {
-    attempts.current.vscode?.abort(); attempts.current.obsidian?.abort();
-    channels.vscode.disconnect(false); channels.obsidian.disconnect(false);
-    sinks.current = {};
-  }, [channels]);
+  useEffect(() => { vscode.edit(project); channels.obsidian.edit(project); }, [channels, vscode, project]);
+  useEffect(() => {
+    vscode.start(latest.current);
+    const storage = (event: StorageEvent) => { if (event.key === PAIRING_STORAGE_KEY || event.key === null) vscode.storageChanged(); };
+    const wake = () => { if (!document.hidden) vscode.wake(); };
+    window.addEventListener('storage', storage); window.addEventListener('online', wake); document.addEventListener('visibilitychange', wake);
+    return () => {
+      window.removeEventListener('storage', storage); window.removeEventListener('online', wake); document.removeEventListener('visibilitychange', wake);
+      vscode.dispose(); attempts.current.obsidian?.abort(); channels.obsidian.disconnect(false); sinks.current = {};
+    };
+  }, [channels, vscode]);
 
   function stop(app: 'vscode' | 'obsidian') {
+    if (app === 'vscode') { vscode.forget(); return; }
     attempts.current[app]?.abort(); delete attempts.current[app];
     channels[app].disconnect();
-    if (app === 'vscode') delete sinks.current.vscode;
   }
   function closePairing() {
     if (vs.phase === 'connecting') stop('vscode');
     setCode(''); setPairError(''); setPairingOpen(false);
   }
-  function confirmed(app: 'vscode' | 'obsidian', snapshot: ThemeProject, receipt: Receipt) {
+  function confirmed(app: 'obsidian', snapshot: ThemeProject, receipt: Receipt) {
     channels[app].connected(sinks.current[app]!, receipt);
     if (serializeProject(snapshot) !== serializeProject(latest.current)) channels[app].edit(latest.current);
   }
   async function connectVSCode() {
     const token = code.trim(); setCode(''); setPairError('');
-    attempts.current.vscode?.abort();
-    const controller = new AbortController(); attempts.current.vscode = controller;
-    setVS({ phase: 'connecting', message: 'Checking the companion, then authenticating and applying the current project…' });
-    try {
-      const snapshot = latest.current;
-      const paired = await pairVSCode(token, snapshot, controller.signal);
-      controller.signal.throwIfAborted();
-      sinks.current.vscode = paired.sink; confirmed('vscode', snapshot, paired.receipt);
-      setPairingOpen(false);
-    } catch (error) {
-      if (controller.signal.aborted) return;
-      const message = errorMessage(error);
-      channels.vscode.disconnect(false); delete sinks.current.vscode;
-      setVS({ phase: 'error', message }); setPairError(message);
-    }
+    if (await vscode.pair(token, latest.current)) setPairingOpen(false);
   }
   async function connectObsidian() {
     attempts.current.obsidian?.abort();
@@ -99,25 +92,29 @@ export default function LiveConnections({ project }: { project: ThemeProject }) 
     }
   }
   async function cleanup(app: 'vscode' | 'obsidian') {
+    if (app === 'vscode') {
+      setCleanupBusy(true);
+      try { await vscode.restore(); } finally { setCleanupBusy(false); }
+      return;
+    }
     const sink = sinks.current[app]; if (!sink) return;
     setCleanupBusy(true);
     attempts.current[app]?.abort(); channels[app].disconnect(false);
-    const publish = app === 'vscode' ? setVS : setObsidian;
-    publish({ phase: 'syncing', message: app === 'vscode' ? 'Waiting for safe restore confirmation…' : 'Checking ownership before removing the generated snippet…' });
+    const publish = setObsidian;
+    publish({ phase: 'syncing', message: 'Checking ownership before removing the generated snippet…' });
     try {
       await channels[app].idle();
       const signal = new AbortController().signal;
-      if (app === 'vscode') await (sink as VSCodeSink).restore(signal);
-      else await (sink as ObsidianSink).remove(signal);
+      await sink.remove(signal);
       delete sinks.current[app];
-      publish({ phase: 'disconnected', message: app === 'vscode' ? 'Restore confirmed by companion. Disconnected; pairing code forgotten.' : 'Owned snippet removed. Sync stopped; no other file changed.' });
+      publish({ phase: 'disconnected', message: 'Owned snippet removed. Sync stopped; no other file changed.' });
     } catch (error) { publish({ phase: 'error', message: errorMessage(error) }); }
     finally { setCleanupBusy(false); }
   }
   return <section className="live-connections" aria-label="Live application">
     <div className="live-intro"><strong>Connect your apps</strong><p>Connect once. Every edit, undo and import then applies automatically.</p>
       <details className="live-details"><summary>How it works</summary>
-        <p><strong>VS Code.</strong> Studio talks only to the companion at 127.0.0.1:43187. Session-only pairing; disconnect forgets the code and keeps the last colors. Restore here before disconnecting, or use the extension's restore command.</p>
+        <p><strong>VS Code.</strong> Studio talks only to the companion at 127.0.0.1:43187. Pairing is remembered for this browser profile and exact Studio address, and reconnects automatically after restarts. Clearing site data, revocation, Disconnect or Forget ends the saved pairing. Disconnect keeps the last colors; restore here first or use the extension's restore command.</p>
         <p><strong>Obsidian.</strong> Choose the <code>.obsidian</code> configuration folder. Enable <strong>opentheme-studio</strong> once in Obsidian’s CSS snippets settings; subsequent saves reload automatically. Only <code>snippets/opentheme-studio.css</code> is written. No vault notes are read. Keep Obsidian open; the browser cannot detect its running state or snippet enablement.</p>
       </details>
     </div>
@@ -125,9 +122,9 @@ export default function LiveConnections({ project }: { project: ThemeProject }) 
       <article className="live-target" aria-label="VS Code live connection">
         <div className="live-target-heading">
           <div className="live-name"><strong>VS Code</strong><span className={`live-phase live-${vs.phase}`}>{labels[vs.phase]}</span></div>
-          <div className="live-actions">{active(vs) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('vscode')}><Unplug size={18} /> Disconnect VS Code</button> : <button className="primary-button" disabled={!local || vs.phase === 'connecting' || cleanupBusy} onClick={() => { setPairError(''); setPairingOpen(true); }}>Connect VS Code</button>}
-            {sinks.current.vscode && <button className="secondary-button" disabled={cleanupBusy} onClick={() => void cleanup('vscode')}>Restore VS Code colors</button>}
-            {sinks.current.vscode && vs.phase === 'error' && <button className="toolbar-button" onClick={() => stop('vscode')}>Forget VS Code connection</button>}</div>
+          <div className="live-actions">{active(vs) ? <button className="secondary-button" disabled={cleanupBusy} onClick={() => stop('vscode')}><Unplug size={18} /> Disconnect VS Code</button> : <button className="primary-button" disabled={!local || vs.phase === 'connecting' || cleanupBusy} onClick={() => { if (vs.hasPairing) vscode.reconnect(); else { setPairError(''); setPairingOpen(true); } }}>{vs.hasPairing ? 'Reconnect VS Code' : 'Connect VS Code'}</button>}
+            {vs.canRestore && <button className="secondary-button" disabled={cleanupBusy} onClick={() => void cleanup('vscode')}>Restore VS Code colors</button>}
+            {vs.hasPairing && !active(vs) && <button className="toolbar-button" disabled={cleanupBusy} onClick={() => stop('vscode')}>Forget VS Code connection</button>}</div>
         </div>
         <p className="live-message" aria-live="polite">{quiet(vs) ? '' : vs.message}</p>{vs.warning && <p className="live-warning">{vs.warning}</p>}
         {quiet(vs) && <p className="live-hint">Requires the OpenTheme Studio companion extension.</p>}
@@ -149,8 +146,8 @@ export default function LiveConnections({ project }: { project: ThemeProject }) 
       <ol className="help-steps"><li>Install the first-party OpenTheme Studio companion extension once in desktop VS Code.</li><li>Run <strong>OpenTheme Studio: Enable Live Sync</strong>, then <strong>Copy pairing code</strong>.</li><li>Paste the code below. Pairing applies your current project immediately using the extension's settings API.</li></ol>
       <form onSubmit={event => { event.preventDefault(); void connectVSCode(); }}><label className="pairing-label" htmlFor="live-pairing-code">Pairing code</label><input className="pairing-input" id="live-pairing-code" type="password" autoComplete="off" spellCheck={false} required maxLength={512} value={code} disabled={vs.phase === 'connecting'} onChange={event => setCode(event.target.value)} />
         {pairError && <p className="field-error" role="alert">{pairError}</p>}
-        <button className="primary-button full-width" disabled={!code.trim() || vs.phase === 'connecting'} type="submit">{vs.phase === 'connecting' ? 'Waiting for companion…' : 'Pair and apply'}</button></form>
-      <p className="dialog-note">The code stays in this tab's memory and is never saved in project JSON or browser storage. Health alone does not mean connected. Close this dialog to cancel a pending pairing.</p>
+        <button className="primary-button full-width" disabled={!code.trim() || vs.phase === 'connecting'} type="submit">{vs.phase === 'connecting' ? 'Waiting for companion…' : 'Pair, remember and apply'}</button></form>
+      <p className="dialog-note">Pairing saves the code in this browser profile for this exact Studio address and applies the current project. It is never included in project JSON, URLs or logs. Clearing site data or using Forget removes the association. Health alone does not mean connected. Close this dialog to cancel pending pairing.</p>
     </Dialog>}
   </section>;
 }
