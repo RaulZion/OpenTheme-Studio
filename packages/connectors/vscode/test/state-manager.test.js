@@ -16,7 +16,9 @@ class MockConfigProvider {
   }
 
   async get(section) {
-    return this.settings[section] ? JSON.parse(JSON.stringify(this.settings[section])) : undefined;
+    return this.settings[section] !== undefined
+      ? JSON.parse(JSON.stringify(this.settings[section]))
+      : undefined;
   }
 
   async update(section, value) {
@@ -28,7 +30,28 @@ class MockConfigProvider {
   }
 }
 
-test('StateManager: generates high-entropy pairing code and verifies Bearer header', () => {
+/**
+ * In-memory mock secret storage simulating vscode.ExtensionContext.secrets
+ */
+class MockSecretStorage {
+  constructor(initial = {}) {
+    this.secrets = new Map(Object.entries(initial));
+  }
+
+  async get(key) {
+    return this.secrets.get(key);
+  }
+
+  async store(key, value) {
+    this.secrets.set(key, String(value));
+  }
+
+  async delete(key) {
+    this.secrets.delete(key);
+  }
+}
+
+test('StateManager: generates high-entropy pairing code and verifies Bearer header', async () => {
   const manager = new StateManager();
   const code = manager.getPairingCode();
 
@@ -44,10 +67,40 @@ test('StateManager: generates high-entropy pairing code and verifies Bearer head
   assert.equal(manager.verifyToken(undefined), false);
 
   // Regeneration
-  const newCode = manager.regeneratePairingCode();
+  const newCode = await manager.regeneratePairingCode();
   assert.notEqual(newCode, code);
   assert.equal(manager.verifyToken(`Bearer ${newCode}`), true);
   assert.equal(manager.verifyToken(`Bearer ${code}`), false);
+});
+
+test('StateManager: persists pairing token across restarts via secrets storage', async () => {
+  const secrets = new MockSecretStorage();
+
+  const session1 = new StateManager({ secrets });
+  await session1.init();
+  const token1 = session1.getPairingCode();
+  assert.ok(token1);
+  assert.equal(await secrets.get('opentheme.pairingToken'), token1);
+
+  // Simulate VS Code host restart with same secrets storage
+  const session2 = new StateManager({ secrets });
+  await session2.init();
+  const token2 = session2.getPairingCode();
+
+  assert.equal(token2, token1, 'Pairing token must persist across restarts');
+  assert.equal(session2.verifyToken(`Bearer ${token1}`), true);
+
+  // Regenerate pairing code
+  const token3 = await session2.regeneratePairingCode();
+  assert.notEqual(token3, token1);
+  assert.equal(await secrets.get('opentheme.pairingToken'), token3);
+
+  // Third session after restart picks up the regenerated token
+  const session3 = new StateManager({ secrets });
+  await session3.init();
+  assert.equal(session3.getPairingCode(), token3);
+  assert.equal(session3.verifyToken(`Bearer ${token3}`), true);
+  assert.equal(session3.verifyToken(`Bearer ${token1}`), false);
 });
 
 test('StateManager: applyTheme non-destructively preserves unrelated user settings', async () => {
@@ -59,6 +112,7 @@ test('StateManager: applyTheme non-destructively preserves unrelated user settin
     'editor.tokenColorCustomizations': {
       'userTokenSetting': '#445566',
     },
+    'workbench.colorTheme': 'Default Dark Modern',
   });
 
   const manager = new StateManager({ configProvider: mockConfig });
@@ -76,10 +130,59 @@ test('StateManager: applyTheme non-destructively preserves unrelated user settin
   // OpenTheme settings must be applied
   assert.equal(appliedWorkbench['editor.background'], '#171C25');
   assert.equal(appliedWorkbench['editor.foreground'], '#F1F3F5');
+  assert.equal(appliedWorkbench['welcomePage.background'], '#171C25');
+  assert.equal(appliedWorkbench['editorGroup.emptyBackground'], '#171C25');
   assert.equal(appliedToken['comments'], '#9AAABC');
 });
 
-test('StateManager: restoreOriginalColors safely restores original state and preserves manual user edits', async () => {
+test('StateManager: aligns base theme when mode diverges (light -> dark) and restores safely', async () => {
+  const mockConfig = new MockConfigProvider({
+    'workbench.colorCustomizations': {
+      'editor.background': '#FFFFFF',
+    },
+    'workbench.colorTheme': 'Default Light Modern',
+  });
+
+  const themeProvider = {
+    themeKind: 'light',
+    getThemeKind() { return this.themeKind; },
+  };
+
+  const manager = new StateManager({ configProvider: mockConfig, themeProvider });
+
+  // Apply dark sampleProject
+  await manager.applyTheme(sampleProject);
+
+  // Base theme must switch to Default Dark Modern to align webview/editor native contrast
+  const appliedTheme = await mockConfig.get('workbench.colorTheme');
+  assert.equal(appliedTheme, 'Default Dark Modern');
+
+  // Restore original colors
+  const restoreResult = await manager.restoreOriginalColors();
+  assert.equal(restoreResult.ok, true);
+
+  // Base theme restored back to Default Light Modern
+  const restoredTheme = await mockConfig.get('workbench.colorTheme');
+  assert.equal(restoredTheme, 'Default Light Modern');
+});
+
+test('StateManager: does NOT alter base theme if already aligned with project mode', async () => {
+  const mockConfig = new MockConfigProvider({
+    'workbench.colorTheme': 'One Dark Pro',
+  });
+
+  const themeProvider = {
+    getThemeKind() { return 'dark'; },
+  };
+
+  const manager = new StateManager({ configProvider: mockConfig, themeProvider });
+  await manager.applyTheme(sampleProject); // sampleProject is mode: "dark"
+
+  const appliedTheme = await mockConfig.get('workbench.colorTheme');
+  assert.equal(appliedTheme, 'One Dark Pro', 'Already-dark base theme should remain untouched');
+});
+
+test('StateManager: restoreOriginalColors preserves manual theme and color edits made by user', async () => {
   const mockConfig = new MockConfigProvider({
     'workbench.colorCustomizations': {
       'custom.userSetting': '#112233',
@@ -88,33 +191,40 @@ test('StateManager: restoreOriginalColors safely restores original state and pre
     'editor.tokenColorCustomizations': {
       'userTokenSetting': '#445566',
     },
+    'workbench.colorTheme': 'Default Light Modern',
   });
 
-  const manager = new StateManager({ configProvider: mockConfig });
+  const themeProvider = {
+    getThemeKind() { return 'light'; },
+  };
+
+  const manager = new StateManager({ configProvider: mockConfig, themeProvider });
   await manager.applyTheme(sampleProject);
 
-  // Simulate user manually changing one color in settings after OpenTheme applied it
+  // User manually edits a color setting and changes theme while live sync is active
   const current = await mockConfig.get('workbench.colorCustomizations');
   current['statusBar.background'] = '#ABCDEF'; // User manual override
   await mockConfig.update('workbench.colorCustomizations', current);
+  await mockConfig.update('workbench.colorTheme', 'Monokai'); // User manual theme switch
 
   // Restore colors
   const restoreResult = await manager.restoreOriginalColors();
   assert.equal(restoreResult.ok, true);
-  assert.ok(restoreResult.restoredCount > 0);
 
   const restoredWorkbench = await mockConfig.get('workbench.colorCustomizations');
-  const restoredToken = await mockConfig.get('editor.tokenColorCustomizations');
+  const restoredTheme = await mockConfig.get('workbench.colorTheme');
 
   // Original user settings preserved
   assert.equal(restoredWorkbench['custom.userSetting'], '#112233');
-  assert.equal(restoredToken['userTokenSetting'], '#445566');
 
   // editor.background restored to original pre-apply value (#000000)
   assert.equal(restoredWorkbench['editor.background'], '#000000');
 
-  // User manual edit (#ABCDEF) MUST NOT be wiped out
+  // User manual color edit (#ABCDEF) MUST NOT be wiped out
   assert.equal(restoredWorkbench['statusBar.background'], '#ABCDEF');
+
+  // User manual theme change (Monokai) MUST NOT be overwritten
+  assert.equal(restoredTheme, 'Monokai');
 
   // Keys that did not exist before apply should be removed
   assert.equal(restoredWorkbench['focusBorder'], undefined);
@@ -124,6 +234,7 @@ test('StateManager: saved recovery snapshot survives extension restart and prese
   const mockConfig = new MockConfigProvider({
     'workbench.colorCustomizations': { 'editor.background': '#000000', 'unrelated.color': '#334455' },
     'editor.tokenColorCustomizations': { 'unrelatedToken': '#667788' },
+    'workbench.colorTheme': 'Default Light Modern',
   });
   const data = new Map();
   const storage = {
@@ -133,11 +244,21 @@ test('StateManager: saved recovery snapshot survives extension restart and prese
       else data.set(key, structuredClone(value));
     },
   };
-  const first = new StateManager({ configProvider: mockConfig, storage });
+  const secrets = new MockSecretStorage();
+
+  const themeProvider = {
+    getThemeKind() { return 'light'; },
+  };
+
+  const first = new StateManager({ configProvider: mockConfig, storage, secrets, themeProvider });
+  await first.init();
   await first.applyTheme(sampleProject);
   assert.ok(data.size > 0, 'original values must be persisted before applying');
-  const restarted = new StateManager({ configProvider: mockConfig, storage });
-  assert.notEqual(first.getPairingCode(), restarted.getPairingCode(), 'pairing token is never persisted');
+
+  // Host restart with same storage and secrets
+  const restarted = new StateManager({ configProvider: mockConfig, storage, secrets, themeProvider });
+  await restarted.init();
+  assert.equal(first.getPairingCode(), restarted.getPairingCode(), 'pairing token persists in secrets across restarts');
 
   const manuallyEdited = await mockConfig.get('workbench.colorCustomizations');
   manuallyEdited['statusBar.background'] = '#ABCDEF';
@@ -149,9 +270,10 @@ test('StateManager: saved recovery snapshot survives extension restart and prese
   assert.equal(restored['editor.background'], '#000000');
   assert.equal(restored['unrelated.color'], '#334455');
   assert.equal(restored['statusBar.background'], '#ABCDEF', 'preserve a manual user edit');
+  assert.equal(await mockConfig.get('workbench.colorTheme'), 'Default Light Modern');
   assert.equal(data.size, 0, 'successful restore clears persisted snapshot');
 
-  const noOp = await new StateManager({ configProvider: mockConfig, storage }).restoreOriginalColors();
+  const noOp = await new StateManager({ configProvider: mockConfig, storage, secrets }).restoreOriginalColors();
   assert.equal(noOp.restoredCount, 0);
   assert.equal((await mockConfig.get('workbench.colorCustomizations'))['statusBar.background'], '#ABCDEF');
 });

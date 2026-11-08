@@ -19,6 +19,7 @@
   ],
   "main": "./src/extension.js",
   "activationEvents": [
+    "onStartupFinished",
     "onCommand:opentheme.enableLiveSync"
   ],
   "contributes": {

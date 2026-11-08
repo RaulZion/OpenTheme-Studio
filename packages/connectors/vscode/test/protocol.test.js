@@ -13,7 +13,7 @@ class MockConfigProvider {
     this.settings = {};
   }
   async get(k) {
-    return this.settings[k] ? JSON.parse(JSON.stringify(this.settings[k])) : undefined;
+    return this.settings[k] !== undefined ? JSON.parse(JSON.stringify(this.settings[k])) : undefined;
   }
   async update(k, v) {
     if (v === undefined) delete this.settings[k];
@@ -94,7 +94,7 @@ test('POST /v1/apply: rejects unauthenticated requests with 401', async () => {
   assert.equal(data.code, 'UNAUTHORIZED');
 });
 
-test('POST /v1/apply: successfully applies valid ThemeProject', async () => {
+test('POST /v1/apply: successfully applies valid ThemeProject and sets Welcome page tokens', async () => {
   const res = await fetch(`http://127.0.0.1:${port}/v1/apply`, {
     method: 'POST',
     headers: {
@@ -115,6 +115,11 @@ test('POST /v1/apply: successfully applies valid ThemeProject', async () => {
   assert.ok(data.appliedCount > 0);
   assert.equal(data.version, '1.144.0');
   assert.equal(data.warning, null);
+
+  const appliedWb = await stateManager.getWorkbenchColors();
+  assert.equal(appliedWb['welcomePage.background'], '#171C25');
+  assert.equal(appliedWb['editorGroup.emptyBackground'], '#171C25');
+  assert.equal(appliedWb['welcomePage.tileBackground'], '#303A4B');
 });
 
 test('POST /v1/apply: returns warning for version mismatch', async () => {
@@ -209,6 +214,10 @@ test('POST /v1/restore: restores original colors successfully', async () => {
   const data = await res.json();
   assert.equal(data.ok, true);
   assert.equal(typeof data.restoredCount, 'number');
+
+  const restoredWb = await stateManager.getWorkbenchColors();
+  assert.equal(restoredWb['welcomePage.background'], undefined);
+  assert.equal(restoredWb['editorGroup.emptyBackground'], undefined);
 });
 
 test('Unknown routes: return 404', async () => {
