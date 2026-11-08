@@ -138,8 +138,37 @@ export function mapWorkbenchColors(project) {
     'button.background': accent,
     'button.foreground': accentText,
     'button.hoverBackground': accent,
+    'button.secondaryBackground': surfaceRaised,
+    'button.secondaryForeground': text,
+    'button.secondaryHoverBackground': surface,
     'badge.background': accent,
     'badge.foreground': accentText,
+
+    // Welcome Page & Walkthroughs
+    'welcomePage.background': canvas,
+    'welcomePage.buttonBackground': surfaceRaised,
+    'welcomePage.buttonHoverBackground': accent,
+    'welcomePage.progress.background': accent,
+    'welcomePage.progress.foreground': accentText,
+    'welcomePage.tileBackground': surfaceRaised,
+    'welcomePage.tileHoverBackground': surface,
+    'welcomePage.tileBorder': border,
+    'walkThrough.embeddedEditorBackground': surface,
+    'keybindingLabel.background': surfaceRaised,
+    'keybindingLabel.foreground': text,
+    'keybindingLabel.border': border,
+    'keybindingLabel.bottomBorder': border,
+
+    // Empty Editor Group & Panes
+    'editorGroup.emptyBackground': canvas,
+    'editorGroup.border': border,
+    'editorGroupHeader.noTabsBackground': surface,
+    'editorPane.background': canvas,
+
+    // Descriptions & Links
+    'textLink.foreground': accent,
+    'textLink.activeForeground': accent,
+    'descriptionForeground': textMuted,
 
     // Lists
     'list.activeSelectionBackground': selection,
