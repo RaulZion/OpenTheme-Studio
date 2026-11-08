@@ -68,3 +68,8 @@ it('times out an unavailable companion rather than leaving a pending connection 
     await vi.advanceTimersByTimeAsync(3000); await pending;
   } finally { vi.useRealTimers(); }
 });
+
+it('classifies a companion shutdown during response reading as temporary unavailability', async () => {
+  fetchMock.mockResolvedValueOnce(health()).mockResolvedValueOnce(new Response(new ReadableStream({ start(controller) { controller.error(new TypeError('Connection closed')); } })));
+  await expect(pairVSCode(token, starter, signal(), origin)).rejects.toMatchObject({ kind: 'unavailable' });
+});

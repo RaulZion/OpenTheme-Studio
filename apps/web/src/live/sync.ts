@@ -1,6 +1,6 @@
 import type { ThemeProject } from '../../../../contracts/adapter-api';
 import type { LiveSink, Receipt } from './vscode';
-export interface LiveState { phase: 'disconnected' | 'connecting' | 'pending' | 'syncing' | 'connected' | 'error'; message: string; warning?: string }
+export interface LiveState { phase: 'disconnected' | 'connecting' | 'pending' | 'syncing' | 'connected' | 'waiting' | 'error'; message: string; warning?: string }
 export class LiveSync {
   private sink?: LiveSink;
   private latest?: ThemeProject;
@@ -10,7 +10,7 @@ export class LiveSync {
   private due = false;
   private inFlight?: Promise<void>;
   private controller = new AbortController();
-  constructor(private publish: (state: LiveState) => void) {}
+  constructor(private publish: (state: LiveState) => void, private onFailure?: (error: unknown) => void) {}
 
   connected(sink: LiveSink, receipt: Receipt): void {
     this.disconnect(false);
@@ -38,7 +38,8 @@ export class LiveSync {
       } catch (error) {
         if (generation !== this.generation) return;
         this.disconnect(false);
-        this.publish({ phase: 'error', message: error instanceof Error ? error.message : 'Live update failed. Reconnect to retry.' });
+        if (this.onFailure) this.onFailure(error);
+        else this.publish({ phase: 'error', message: error instanceof Error ? error.message : 'Live update failed. Reconnect to retry.' });
       }
     })().finally(() => {
       this.inFlight = undefined;

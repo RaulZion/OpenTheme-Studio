@@ -1,0 +1,13 @@
+
+> @opentheme/web@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v7.2.2 building client environment for production...
+transforming...
+✓ 1779 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.58 kB │ gzip:   0.37 kB
+dist/assets/index-DcjBGHh1.css   29.84 kB │ gzip:   6.57 kB
+dist/assets/index-BVKSBsC5.js   430.25 kB │ gzip: 134.41 kB
+✓ built in 4.44s

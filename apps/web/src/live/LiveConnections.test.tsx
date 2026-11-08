@@ -3,10 +3,23 @@ import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { starter } from '../presets';
 import LiveConnections from './LiveConnections';
+import { PAIRING_STORAGE_KEY } from './remembered-vscode';
 
 beforeEach(() => {
+  localStorage.clear();
   vi.stubGlobal('location', { origin: 'http://127.0.0.1:5173' });
   vi.stubGlobal('isSecureContext', true);
+});
+it('automatically restores a saved pairing without opening the pairing dialog', async () => {
+  localStorage.setItem(PAIRING_STORAGE_KEY, JSON.stringify({ version: 1, origin: 'http://127.0.0.1:5173', protocol: 'opentheme.live.v1', token: 'test-saved-code' }));
+  const fetchMock = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, protocol: 'opentheme.live.v1', appId: 'vscode', version: '1.144.0' }))).mockResolvedValueOnce(new Response(JSON.stringify({ ok: true, appliedCount: 12, version: '1.144.0', warning: null })));
+  vi.stubGlobal('fetch', fetchMock);
+  render(<LiveConnections project={starter} />);
+  const target = screen.getByRole('article', { name: 'VS Code live connection' });
+  expect(await within(target).findByText('Connected', { exact: true })).toBeVisible();
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  await userEvent.setup().click(within(target).getByRole('button', { name: 'Disconnect VS Code' }));
+  expect(localStorage.getItem(PAIRING_STORAGE_KEY)).toBeNull();
 });
 it('never uses health alone as a connected acknowledgment and can cancel pairing', async () => {
   const user = userEvent.setup();
@@ -16,7 +29,7 @@ it('never uses health alone as a connected acknowledgment and can cancel pairing
   await user.click(screen.getByRole('button', { name: 'Connect VS Code' }));
   const dialog = screen.getByRole('dialog', { name: 'Connect VS Code' });
   await user.type(within(dialog).getByLabelText('Pairing code'), 'test-pairing-code');
-  await user.click(within(dialog).getByRole('button', { name: 'Pair and apply' }));
+  await user.click(within(dialog).getByRole('button', { name: 'Pair, remember and apply' }));
   await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   const target = screen.getByRole('article', { name: 'VS Code live connection' });
   expect(within(target).queryByText('Connected', { exact: true })).not.toBeInTheDocument();
@@ -31,6 +44,6 @@ it('shows explicit unsupported-browser and pairing errors without blocking local
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
   await user.click(screen.getByRole('button', { name: 'Connect VS Code' }));
   await user.type(screen.getByLabelText('Pairing code'), 'test-code');
-  await user.click(screen.getByRole('button', { name: 'Pair and apply' }));
+  await user.click(screen.getByRole('button', { name: 'Pair, remember and apply' }));
   expect(await screen.findByRole('alert')).toHaveTextContent(/Companion unavailable/);
 });
